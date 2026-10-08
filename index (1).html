@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SENDROP Livreur</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--y:#FFC400;--y2:#FFD84D;--yd:#D9A000;--ink:#17150E;--mut:#6C6858;--ln:#EDE5C4;--tint:#FFF8DC;--err:#B3261E;--ok:#1E7B3A}
+*{box-sizing:border-box}html,body{margin:0}
+body{font:400 16px/1.5 Manrope,system-ui,sans-serif;background:#fff;color:var(--ink);padding-top:env(safe-area-inset-top,0)}
+h1,h2,.top b,.brand b{font-family:'Bricolage Grotesque',Manrope,system-ui,sans-serif;letter-spacing:-.03em}
+h1{font-size:2.4rem;font-weight:800;margin:0;line-height:1}h2{font-size:1.45rem;font-weight:800;margin:.2rem 0 1rem}
+.mut,.sub{color:var(--mut)}.ic{width:22px;height:22px;display:block;margin:0 auto 2px}
+.logo{display:block;overflow:visible}.logo .bx{transform-origin:32px 56px;animation:hop 1.9s ease-in-out infinite}.logo .sh{transform-origin:32px 59px;animation:shd 1.9s ease-in-out infinite}
+@keyframes hop{0%,100%{transform:translateY(0) rotate(0)}28%{transform:translateY(-7px) rotate(-4deg)}55%{transform:translateY(-2px) rotate(3deg)}78%{transform:translateY(-4px) rotate(-1deg)}}
+@keyframes shd{0%,100%{transform:scaleX(1);opacity:.25}28%{transform:scaleX(.7);opacity:.12}55%{transform:scaleX(.9);opacity:.2}}
+@media(prefers-reduced-motion:reduce){.logo *{animation:none!important}}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}.brand .logo{width:68px;height:68px}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;background:#fff;border-bottom:3px solid var(--y);padding:8px 16px}
+.top .logo{width:36px;height:36px}.top b{font-size:1.3rem;font-weight:800}.tag{background:var(--ink);color:var(--y);font-weight:800;font-size:.7rem;padding:2px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.06em}
+.auth{max-width:440px;margin:0 auto;padding:7vh 20px 24px}
+.card{background:#fff;border:1.5px solid var(--ln);border-radius:16px;padding:16px;margin:0 0 14px}
+.hero{background:var(--y);border-radius:20px;padding:20px;margin:0 0 16px}.hero h2{font-size:1.8rem;margin:0 0 4px}.hero p{margin:0 0 14px}
+label{display:block;font-weight:600;font-size:.9rem;margin:0 0 12px}
+input,select,textarea{width:100%;font:inherit;padding:11px 12px;margin-top:5px;border:1.5px solid var(--ln);border-radius:12px;background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{border-color:var(--y);outline:3px solid #FFE88A;outline-offset:0}
+textarea{min-height:76px;resize:vertical}
+button{font:800 1rem Manrope,sans-serif;border:0;border-radius:12px;padding:12px 16px;background:var(--y);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 3px 0 var(--yd);transition:transform .08s,box-shadow .08s}
+button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--yd)}button:disabled{opacity:.5;cursor:default}
+button.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--ink);box-shadow:none}button.danger{background:var(--err);color:#fff;box-shadow:none}
+button.sm{width:auto;padding:7px 14px}
+a.btn{display:block;text-align:center;text-decoration:none;font-weight:800;padding:12px;border-radius:12px;border:1.5px solid var(--ink);color:var(--ink);margin:10px 0}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.err{color:var(--err);min-height:1.4em;margin:0 0 8px;font-size:.9rem}
+#main{max-width:720px;margin:0 auto;padding:18px 16px calc(92px + env(safe-area-inset-bottom,0))}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:4px;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0));z-index:6}
+nav button{background:none;color:var(--mut);box-shadow:none;border-radius:12px;padding:8px 2px;font-size:.7rem;font-weight:700}
+nav button.on{color:var(--ink)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.seg button{background:#fff;color:var(--ink);border:1.5px solid var(--ln);box-shadow:none}.seg button.on{background:var(--y);border-color:var(--y)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stats .card{margin:0}.stats b{display:block;font-family:'Bricolage Grotesque',Manrope,sans-serif;font-size:2rem;font-weight:800;line-height:1.1}
+.row{display:flex;gap:8px}.row button{width:auto}.between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#map,#omap{height:300px;border-radius:16px;margin:10px 0;border:1.5px solid var(--ln);z-index:0}
+.res div{padding:9px 4px;border-bottom:1px solid var(--ln);cursor:pointer;font-size:.9rem}
+.item{cursor:pointer;display:block}.item small{color:var(--mut)}
+.badge{display:inline-block;background:var(--tint);border:1px solid var(--y);font-weight:700;font-size:.76rem;padding:2px 10px;border-radius:99px}
+.badge.ok{background:var(--ok);border-color:var(--ok);color:#fff}.badge.bad{background:var(--err);border-color:var(--err);color:#fff}
+.tl{list-style:none;margin:0;padding:0 0 0 20px;border-left:3px solid var(--ln)}
+.tl li{position:relative;padding:5px 0;color:var(--mut)}.tl li:before{content:"";position:absolute;left:-29px;top:11px;width:11px;height:11px;border-radius:50%;background:#fff;border:2px solid var(--ln)}
+.tl li.done{color:var(--ink)}.tl li.done:before{background:var(--ink);border-color:var(--ink)}.tl li.cur{color:var(--ink);font-weight:800}.tl li.cur:before{background:var(--y);border-color:var(--ink);box-shadow:0 0 0 4px #FFE88A}
+.stars{display:flex;gap:6px;margin:8px 0}.stars button{background:#fff;color:var(--ink);border:1.5px solid var(--ln);box-shadow:none;padding:9px}.stars button.on{background:var(--y);border-color:var(--y)}
+.unread{border-left:6px solid var(--y)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0));background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:9999;max-width:90%}
+nav{background:var(--y)}nav button{color:#5A4A00}nav button.on{background:var(--ink);color:var(--y)}button.go{background:var(--ink);color:var(--y);box-shadow:0 3px 0 #000}.top{border-bottom-color:var(--ink)}
+</style></head><body>
+<div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SB='https://tjcaznqcqoevwnuievkl.supabase.co',KEY='sb_publishable_IL0vaCubk7751fe-TFWnQw_AN2gYM5X';
+const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqY2F6bnFjcW9ldndudWlldmtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzODg0MDcsImV4cCI6MjEwNjk2NDQwN30.CbYncNRm7BgwAZd_G3oI_FYUCgEVzKwynjx8PRCIHBw';
+const sb=supabase.createClient(SB,KEY);
+const $=(s,e=document)=>e.querySelector(s),app=$('#app');
+const LOGO='<svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Sendrop"><ellipse class="sh" cx="32" cy="59" rx="17" ry="3" fill="#17150E" opacity=".25"/><g class="bx" stroke="#17150E" stroke-width="2.2" stroke-linejoin="round"><path d="M10 22 L32 32 L32 56 L10 46 Z" fill="#F2B705"/><path d="M32 32 L54 22 L54 46 L32 56 Z" fill="#E0A100"/><path d="M32 12 L54 22 L32 32 L10 22 Z" fill="#FFD84D"/><path d="M21 17 L43 27" stroke="#fff" stroke-width="6"/><path d="M32 12 L54 22 L32 32 L10 22 Z" fill="none"/><path d="M38 41 L48 36.5 L48 43 L38 47.5 Z" fill="#fff" stroke-width="1.6"/></g></svg>';
+{const l=document.createElement('link');l.rel='icon';l.href='data:image/svg+xml,'+encodeURIComponent(LOGO);document.head.append(l)}
+
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const mail=p=>p.slice(1)+'@drivers.swiftdrop.app';
+const DS={pending:'Dossier à compléter',under_review:'Dossier en cours de vérification',approved:'Approuvé',rejected:'Refusé',correction_required:'Correction demandée',suspended:'Suspendu'};
+const CS={pending:'En attente de vérification',valid:'Valide',expired:'Expiré',needs_review:'À revoir',rejected:'Refusé'};
+const DT={id_card:"Carte d'identité",passport:'Passeport',license:'Permis de conduire',insurance:'Assurance'};
+const P={doc:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6"/>',inbox:'<path d="M22 12h-6l-2 3h-4l-2-3H2M5 5h14l3 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/>',nav:'<path d="M3 11l19-9-9 19-2-8z"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'};
+const ic=n=>`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${P[n]}</svg>`;
+let me,prof,drv,main,map,timer,ch,rt;
+const empty=t=>`<div class="card mut">${t}</div>`;
+const fmt=d=>new Date(d).toLocaleString('fr-FR',{dateStyle:'medium',timeStyle:'short'});
+function toast(t){const e=document.createElement('div');e.id='toast';e.textContent=t;document.body.append(e);setTimeout(()=>e.remove(),3500)}
+const geo=()=>new Promise((ok,ko)=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>ok(p.coords),ko,{enableHighAccuracy:true,timeout:15000}):ko());
+const clean=()=>{clearInterval(timer);clearTimeout(rt);if(ch){sb.removeChannel(ch);ch=null}if(map){map.remove();map=null}};
+const normPhone=v=>{let p=v.replace(/[\s.\-()]/g,'');if(/^7\d{8}$/.test(p))p='+221'+p;if(/^221\d{9}$/.test(p))p='+'+p;return/^\+2217\d{8}$/.test(p)?p:null};
+async function route(a,b,color){try{const r=await(await fetch(`https://router.project-osrm.org/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson`)).json();
+ if(!map)return;return L.polyline(r.routes[0].geometry.coordinates.map(x=>[x[1],x[0]]),{color,weight:5,opacity:.8}).addTo(map)}catch{return null}}
+const hav=(a,b,c,d)=>{const r=x=>x*Math.PI/180,h=Math.sin(r(c-a)/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(r(d-b)/2)**2;return 12742*Math.asin(Math.sqrt(h))};
+function mkMap(){const m=L.map('map').setView([14.7167,-17.4677],12);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(m);return m}
+async function upl(file,name){
+ if(!file)throw'Choisissez un fichier.';if(file.size>8e6)throw'Fichier trop lourd (8 Mo maximum).';
+ const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+ const path=`${me.id}/${name}-${Date.now()}.${ext}`;
+ const{error}=await sb.storage.from('private-docs').upload(path,file,{contentType:file.type});
+ if(error)throw"Envoi du fichier impossible. Réessayez.";return path}
+
+/* ---------- Authentification ---------- */
+const FNB=SB+'/functions/v1/',HD={'Content-Type':'application/json',apikey:KEY,Authorization:'Bearer '+ANON};
+const call=async(n,b)=>{try{const r=await fetch(FNB+n,{method:'POST',headers:HD,body:JSON.stringify(b)});return{ok:r.ok,status:r.status,j:await r.json().catch(()=>({}))}}catch{return{ok:false,status:0,j:{}}}};
+function viewAuth(msg='',mode='login',st=null){
+ const reg=mode==='reg',rs=mode==='reset',cd=!!(st&&st.step==='code');
+ app.innerHTML=`<main class="auth"><div class="brand">${LOGO}<h1>SENDROP Livreur</h1></div><p class="mut">Gagnez en livrant des colis près de chez vous.</p>
+ <div class="seg"><button data-m="login" class="${mode==='login'?'on':''}">Connexion</button><button data-m="reg" class="${reg?'on':''}">Devenir livreur</button></div>
+ <form id="f" class="card">${cd?`<p class="mut">Un code a été envoyé sur WhatsApp au ${esc(st.phone)}.</p><label>Code reçu<input id="cd" inputmode="numeric" autocomplete="one-time-code" required></label>`:
+ `${rs?'<p class="mut">Entrez votre numéro et votre nouveau mot de passe. Un code vous sera envoyé par WhatsApp.</p>':''}${reg?`<p class="mut">Utilisez exactement les nom et prénom figurant sur votre pièce d'identité.</p><label>Prénom<input id="fn" required autocomplete="given-name"></label><label>Nom<input id="ln" required autocomplete="family-name"></label><label>Date de naissance<input id="bd" type="date" required></label><label>Adresse<input id="ad" required autocomplete="street-address"></label><label>Ville<input id="ci" required></label><label>Véhicule<select id="vh"><option value="moto">Moto</option><option value="voiture">Voiture</option><option value="velo">Vélo</option></select></label>`:''}<label>Téléphone<input id="ph" inputmode="tel" placeholder="77 000 00 00" required autocomplete="tel" value="${esc(st&&st.phone||'')}"></label>
+ <label>${rs?'Nouveau mot de passe':'Mot de passe'}${reg||rs?' (8 caractères minimum)':''}<input id="pw" type="password" minlength="8" required autocomplete="${reg||rs?'new-password':'current-password'}"></label>`}
+ <p class="err" id="e">${esc(msg)}</p><button id="b">${cd?'Valider':reg?'Créer mon compte':rs?'Recevoir un code':'Se connecter'}</button>
+ ${mode==='login'?'<p></p><button type="button" class="ghost" id="fg">Mot de passe oublié</button>':''}</form></main>`;
+ $('.seg').onclick=e=>{const b=e.target.closest('button');if(b)viewAuth('',b.dataset.m)};
+ const fg=$('#fg');if(fg)fg.onclick=()=>viewAuth('','reset');
+ $('#f').onsubmit=async ev=>{ev.preventDefault();const e=$('#e'),btn=$('#b');btn.disabled=true;
+  const fail=m=>{btn.disabled=false;e.textContent=m};
+  if(cd){const r=await call('account',Object.assign({},st.payload,{phone:st.phone,otp_code:$('#cd').value.trim()}));
+   if(!r.ok)return fail(r.j.error||'Code incorrect ou expiré.');return login(st.phone,st.payload.password,fail)}
+  const phone=normPhone($('#ph').value);if(!phone)return fail('Numéro invalide. Exemple : 77 000 00 00');
+  const pw=$('#pw').value;
+  if(!reg&&!rs)return login(phone,pw,fail);
+  const payload=rs?{mode:'reset',password:pw}:{mode:'driver',first_name:$('#fn').value,last_name:$('#ln').value,birth_date:$('#bd').value,address:$('#ad').value,city:$('#ci').value,vehicle_type:$('#vh').value,password:pw};
+  const o=await call('send-otp',{phone});
+  if(o.status===503){
+   if(rs)return fail("La réinitialisation n'est pas encore disponible. Contactez l'administrateur.");
+   const r=await call('account',Object.assign({},payload,{phone}));if(!r.ok)return fail(r.j.error||'Inscription impossible.');return login(phone,pw,fail)}
+  if(!o.ok)return fail(o.j.error||"Impossible d'envoyer le code. Réessayez plus tard.");
+  viewAuth('',mode,{step:'code',phone,payload})}}
+async function login(phone,pw,fail){const{error}=await sb.auth.signInWithPassword({email:mail(phone),password:pw});
+ if(error){if(fail)fail('Numéro ou mot de passe incorrect.');else viewAuth('Connexion impossible. Réessayez.');return}start()}
+async function start(){
+ const{data:{session}}=await sb.auth.getSession();if(!session)return viewAuth();
+ me=session.user;
+ const{data:p}=await sb.from('profiles').select('*').eq('id',me.id).single();
+ if(!p||p.role!=='driver'){await sb.auth.signOut();return viewAuth("Ce compte n'est pas un compte livreur.")}
+ if(p.status==='banned'){await sb.auth.signOut();return viewAuth('Ce compte a été banni.')}
+ prof=p;await loadDrv();shell()}
+async function loadDrv(){const{data}=await sb.from('drivers').select('*').eq('id',me.id).single();drv=data}
+function shell(){
+ const ok=drv.status==='approved';
+ const tabs=ok?[['req','Demandes','inbox'],['mis','Mission','nav'],['his','Historique','list'],['me','Profil','user']]:[['dos','Dossier','doc'],['me','Profil','user']];
+ app.innerHTML=`<header class="top">${LOGO}<b>SENDROP</b><span class="tag">Livreur</span></header><div id="main"></div><nav>${tabs.map(t=>`<button data-t="${t[0]}">${ic(t[2])}${t[1]}</button>`).join('')}</nav>`;
+ main=$('#main');$('nav').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.t)};go(tabs[0][0]);
+ sb.channel('nt').on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:`user_id=eq.${me.id}`},p=>toast(p.new.title+' : '+(p.new.body||''))).subscribe()}
+function go(t){clean();document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));({dos:vDos,req:vReq,mis:vMis,his:vHis,me:vMe})[t]()}
+
+/* ---------- Dossier ---------- */
+async function vDos(){
+ await loadDrv();
+ const{data:docs}=await sb.from('driver_documents').select('*').eq('driver_id',me.id).order('created_at',{ascending:false});
+ const lock=drv.status==='under_review'||drv.status==='suspended'||drv.status==='rejected';
+ const need=['moto','voiture'].includes(drv.vehicle_type);
+ main.innerHTML=`<h2>Mon dossier</h2><div class="card"><span class="badge ${drv.status==='approved'?'ok':''}">${DS[drv.status]}</span>${drv.admin_note?`<p>${esc(drv.admin_note)}</p>`:''}
+ <p class="mut">Documents obligatoires : photo, pièce d'identité${need?', permis et assurance valides':''}. Un document expiré est refusé automatiquement. Chaque document est vérifié par l'équipe SENDROP.</p></div>
+ ${lock?'':`<div class="card"><b>Photo personnelle</b> <span class="badge ${drv.photo_path?'ok':'bad'}">${drv.photo_path?'Envoyée':'Manquante'}</span>
+ <p class="mut">Visage visible, photo nette et bien éclairée, vous seul sur la photo.</p><input type="file" id="pf" accept="image/*" capture="user"><p></p><button id="up">Envoyer la photo</button></div>
+ <div class="card"><b>Ajouter un document</b><label>Type<select id="dt"><option value="id_card">Carte d'identité</option><option value="passport">Passeport</option><option value="license">Permis de conduire</option><option value="insurance">Assurance</option></select></label>
+ <label>Numéro (pièce, permis ou police)<input id="dn" required></label><label>Nom du titulaire ou compagnie d'assurance<input id="dh"></label>
+ <label>Date de début (assurance)<input id="ds" type="date"></label><label>Date d'expiration<input id="de" type="date" required></label>
+ <label>Fichier (photo ou PDF)<input type="file" id="df" accept="image/*,application/pdf"></label><button id="ad">Ajouter le document</button></div>`}
+ <div class="card"><b>Documents envoyés</b>${(docs||[]).length?docs.map(d=>`<p>${DT[d.doc_type]} - expire le ${d.expires_at||'?'}<br><span class="badge ${d.check_status==='valid'?'ok':d.check_status==='pending'?'':'bad'}">${CS[d.check_status]}</span></p>`).join(''):'<p class="mut">Aucun document pour le moment.</p>'}</div>
+ ${lock?'':'<button class="go" id="sub">Envoyer mon dossier pour vérification</button>'}`;
+ if(lock)return;
+ $('#up').onclick=async()=>{try{const path=await upl($('#pf').files[0],'photo');const{error}=await sb.from('drivers').update({photo_path:path}).eq('id',me.id);if(error)throw'Enregistrement impossible.';toast('Photo envoyée');vDos()}catch(e){toast(String(e))}};
+ $('#ad').onclick=async()=>{try{
+  const t=$('#dt').value,n=$('#dn').value.trim(),ex=$('#de').value;if(!n||!ex)throw'Numéro et date d\'expiration requis.';
+  const path=await upl($('#df').files[0],t);
+  const{error}=await sb.from('driver_documents').insert({driver_id:me.id,doc_type:t,file_path:path,doc_number:n,holder_name:t==='insurance'?null:($('#dh').value.trim()||null),provider:t==='insurance'?($('#dh').value.trim()||null):null,starts_at:$('#ds').value||null,expires_at:ex});
+  if(error)throw'Enregistrement impossible.';toast('Document ajouté');vDos()}catch(e){toast(String(e))}};
+ $('#sub').onclick=async()=>{const{error}=await sb.rpc('submit_driver_file');if(error)return toast(error.message);toast('Dossier envoyé');vDos()}}
+
+/* ---------- Abonnement ---------- */
+const subState=async()=>(await sb.rpc('get_my_subscription')).data||{};
+const payHtml=s=>`<div class="card"><b>Abonnement mensuel obligatoire</b><p>Pour recevoir des livraisons, un abonnement de ${(s.price_xof||0).toLocaleString('fr-FR')} FCFA par mois est requis. Votre accès s'active automatiquement dès que le paiement est confirmé.</p><button class="go" id="pay">Payer maintenant</button>${s.pending?'<p class="mut">Un paiement est en attente de confirmation.</p>':''}<p></p><label>Déjà payé ? Saisissez l'identifiant de la transaction<input id="tx" placeholder="Identifiant de transaction"></label><button class="ghost" id="dc">J'ai payé</button></div>`;
+function payBind(){
+ $('#pay').onclick=async()=>{const{data,error}=await sb.rpc('start_payment');if(error)return toast(error.message);window.location.href=data.url};
+ $('#dc').onclick=async()=>{await sb.rpc('start_payment');const{error}=await sb.rpc('declare_payment',{p_tx:$('#tx').value.trim()});toast(error?error.message:'Merci. Votre accès sera activé dès confirmation du paiement.')}}
+
+/* ---------- Demandes ---------- */
+async function vReq(){
+ if(ch){sb.removeChannel(ch);ch=null}
+ main.innerHTML=`<h2>Demandes</h2><div class="card between"><b>Disponibilité</b><button class="sm ${drv.is_online?'go':'ghost'}" id="on">${drv.is_online?'En ligne':'Hors ligne'}</button></div><div id="l"></div>`;
+ $('#on').onclick=async()=>{const{error}=await sb.from('drivers').update({is_online:!drv.is_online}).eq('id',me.id);if(error)return toast('Changement impossible.');await loadDrv();vReq()};
+ const ss=await subState();
+ if(ss.required&&!ss.active){$('#l').innerHTML=payHtml(ss);payBind();ch=sb.channel('sp').on('postgres_changes',{event:'*',schema:'public',table:'subscriptions',filter:`driver_id=eq.${me.id}`},()=>vReq()).subscribe();return}
+ if(!drv.is_online){$('#l').innerHTML=empty('Passez en ligne pour recevoir des demandes.');return}
+ let c;try{c=await geo()}catch{$('#l').innerHTML=empty('Autorisez la localisation dans votre navigateur pour voir les demandes proches.');return}
+ await sb.from('driver_locations').upsert({driver_id:me.id,lat:c.latitude,lng:c.longitude,accuracy:c.accuracy,updated_at:new Date().toISOString()});
+ const{data}=await sb.from('orders').select('*').in('status',['pending','searching_driver']).order('created_at',{ascending:false}).limit(50);
+ ch=sb.channel('rq').on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>{clearTimeout(rt);rt=setTimeout(vReq,800)}).subscribe();
+ const hid=JSON.parse(sessionStorage.getItem('hid')||'[]');
+ const rows=(data||[]).map(o=>({o,d:hav(c.latitude,c.longitude,o.pickup_lat,o.pickup_lng)})).filter(x=>x.d<=25&&!hid.includes(x.o.id)).sort((a,b)=>a.d-b.d);
+ $('#l').innerHTML=rows.length?rows.map(({o,d})=>`<div class="card"><b>À ${d.toFixed(1)} km de vous</b><br>Récupération : ${esc(o.pickup_address||'Point sur la carte')}<br>Destination : ${esc(o.drop_address||'Point sur la carte')}<br>Trajet : ${o.distance_km||'?'} km - Prix : ${o.price_xof?o.price_xof.toLocaleString('fr-FR')+' FCFA':'non défini'}<br><span class="mut">${esc(o.package_info||'')}</span>
+ <div class="seg"><button class="ghost" data-r="${o.id}">Refuser</button><button class="go" data-a="${o.id}">Accepter</button></div></div>`).join(''):empty('Aucune demande à proximité pour le moment.');
+ $('#l').onclick=async e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.r){hid.push(b.dataset.r);sessionStorage.setItem('hid',JSON.stringify(hid));return vReq()}
+  if(b.dataset.a){b.disabled=true;const{data:ok,error}=await sb.rpc('accept_order',{p_order:b.dataset.a});
+   if(error)return toast(error.message);if(!ok){toast('Cette demande a déjà été attribuée.');return vReq()}go('mis')}}}
+
+/* ---------- Mission ---------- */
+const NEXT={driver_assigned:['driver_arriving','Je pars vers la récupération'],driver_arriving:['driver_arrived','Je suis arrivé au point de récupération'],driver_arrived:['picked_up','Confirmer la prise en charge'],picked_up:['in_transit','Démarrer la livraison'],in_transit:['delivered','Confirmer la livraison']};
+async function vMis(){
+ const{data:o}=await sb.from('orders').select('*').eq('driver_id',me.id).in('status',Object.keys(NEXT)).limit(1).maybeSingle();
+ if(!o){main.innerHTML='<h2>Mission</h2>'+empty('Aucune mission en cours. Acceptez une demande depuis l\'onglet Demandes.');return}
+ const toPick=['driver_assigned','driver_arriving','driver_arrived'].includes(o.status),dest=toPick?[o.pickup_lat,o.pickup_lng]:[o.drop_lat,o.drop_lng];
+ const nx=NEXT[o.status],needPhoto=['driver_arrived','in_transit'].includes(o.status);
+ main.innerHTML=`<h2>Mission en cours</h2><div id="map"></div><div class="card"><span class="badge">${nx[1]}</span><p>Récupération : ${esc(o.pickup_address||'Point sur la carte')}<br>Destination : ${esc(o.drop_address||'Point sur la carte')}<br><span class="mut">${esc(o.package_info||'')}</span></p>
+ <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${dest[0]},${dest[1]}&travelmode=driving">Ouvrir la navigation GPS</a>
+ ${needPhoto?`<label>${o.status==='driver_arrived'?'Photo du colis (obligatoire)':'Photo de preuve de livraison (obligatoire)'}<input type="file" id="pf" accept="image/*" capture="environment"></label>`:''}
+ <button class="go" id="nx">${nx[1]}</button></div>`;
+ map=mkMap();L.marker([o.pickup_lat,o.pickup_lng]).addTo(map).bindTooltip('Récupération');L.marker([o.drop_lat,o.drop_lng]).addTo(map).bindTooltip('Destination');
+ map.fitBounds([[o.pickup_lat,o.pickup_lng],[o.drop_lat,o.drop_lng]],{padding:[30,30]});
+ let dm,rl;const track=async()=>{try{const c=await geo();if(!map)return;
+  await sb.from('driver_locations').upsert({driver_id:me.id,lat:c.latitude,lng:c.longitude,accuracy:c.accuracy,updated_at:new Date().toISOString()});
+  if(dm)dm.setLatLng([c.latitude,c.longitude]);else dm=L.circleMarker([c.latitude,c.longitude],{radius:9,color:'#17150E',fillColor:'#FFC400',fillOpacity:1}).addTo(map).bindTooltip('Vous');if(!rl){rl=1;route([c.latitude,c.longitude],dest,'#17150E')}}catch{}};
+ track();timer=setInterval(track,10000);
+ $('#nx').onclick=async()=>{const b=$('#nx');b.disabled=true;
+  try{let c=null;try{c=await geo()}catch{}
+   if(needPhoto){const kind=o.status==='driver_arrived'?'pickup':'delivery';const path=await upl($('#pf').files[0],'proof-'+kind);
+    const{error}=await sb.from('delivery_proofs').insert({order_id:o.id,driver_id:me.id,kind,photo_path:path,lat:c?c.latitude:null,lng:c?c.longitude:null});
+    if(error&&!/duplicate/.test(error.message))throw'Preuve non enregistrée.'}
+   const{error}=await sb.rpc('advance_order',{p_order:o.id,p_status:nx[0],p_lat:c?c.latitude:null,p_lng:c?c.longitude:null});
+   if(error)throw error.message;
+   toast(nx[0]==='delivered'?'Livraison confirmée':'Étape enregistrée');nx[0]==='delivered'?go('his'):go('mis')
+  }catch(e){b.disabled=false;toast(String(e))}}}
+
+/* ---------- Historique ---------- */
+async function vHis(){
+ await loadDrv();
+ main.innerHTML='<h2>Historique</h2><p class="mut">Chargement...</p>';
+ const q=()=>sb.from('orders').select('id,price_xof,drop_address,delivered_at,distance_km',{count:'exact'}).eq('driver_id',me.id).eq('status','delivered');
+ const{data,count}=await q().order('delivered_at',{ascending:false}).limit(15);
+ const{data:all}=await sb.from('orders').select('price_xof').eq('driver_id',me.id).eq('status','delivered').limit(2000);
+ const rev=(all||[]).reduce((s,x)=>s+(x.price_xof||0),0);
+ const {count:act}=await sb.from('orders').select('id',{count:'exact',head:true}).eq('driver_id',me.id).in('status',Object.keys(NEXT));
+ main.innerHTML=`<h2>Historique</h2>${(count||act)?`<div class="stats"><div class="card"><b>${count||0}</b>Livraisons terminées</div><div class="card"><b>${act||0}</b>En cours</div>
+ <div class="card"><b>${drv.rating_count?drv.rating_avg:'-'}</b>Note moyenne${drv.rating_count?` (${drv.rating_count} avis)`:''}</div><div class="card"><b>${rev?rev.toLocaleString('fr-FR')+' FCFA':'-'}</b>Revenus</div></div>`:empty('Aucune donnée disponible. Vos livraisons apparaîtront ici.')}
+ ${(data||[]).map(o=>`<div class="card"><b>${esc(o.drop_address||'Destination')}</b><br><span class="mut">${o.delivered_at?fmt(o.delivered_at):''}${o.distance_km?` - ${o.distance_km} km`:''}${o.price_xof?` - ${o.price_xof} FCFA`:''}</span></div>`).join('')}`}
+
+/* ---------- Profil ---------- */
+async function vMe(){
+ main.innerHTML=`<h2>Profil</h2><div class="card"><b>${esc(prof.first_name)} ${esc(prof.last_name)}</b><br>${esc(prof.phone||'')}<br><span class="badge ${drv.status==='approved'?'ok':''}">${DS[drv.status]}</span></div>
+ <div class="card"><b>Signaler un problème</b><label>Type<select id="rc"><option value="delivery">Problème de livraison</option><option value="suspicious">Comportement suspect</option><option value="fraud">Fraude</option><option value="payment">Problème de paiement</option><option value="safety">Problème de sécurité</option><option value="other">Autre</option></select></label>
+ <label>Description<textarea id="rd"></textarea></label><button class="ghost" id="rs">Envoyer le signalement</button><p></p><button class="danger" id="em">Signaler une urgence</button></div>
+ <div class="card"><b>Abonnement</b><div id="sbs"><p class="mut">Chargement...</p></div></div><div class="card"><b>Notifications</b><div id="n"><p class="mut">Chargement...</p></div></div><button class="ghost" id="lo">Se déconnecter</button>`;
+ $('#lo').onclick=async()=>{await sb.auth.signOut();sb.removeAllChannels();me=prof=drv=null;viewAuth()};
+ $('#rs').onclick=async()=>{const d=$('#rd').value.trim();if(!d)return toast('Décrivez le problème.');const{error}=await sb.from('reports').insert({author_id:me.id,category:$('#rc').value,description:d});toast(error?'Envoi impossible.':'Signalement envoyé');if(!error)$('#rd').value=''};
+ $('#em').onclick=async()=>{let c=null;try{c=await geo()}catch{}const{error}=await sb.from('emergency_requests').insert({user_id:me.id,description:$('#rd').value.trim()||null,lat:c?c.latitude:null,lng:c?c.longitude:null});toast(error?'Envoi impossible. Appelez les secours si nécessaire.':'Urgence transmise à SENDROP')};
+ const{data:sb1}=await sb.from('subscriptions').select('status,expires_at,subscription_plans(name)').eq('driver_id',me.id).order('created_at',{ascending:false}).limit(1);
+ const s1=sb1&&sb1[0],live=s1&&s1.status==='active'&&(!s1.expires_at||new Date(s1.expires_at)>new Date());
+ $('#sbs').innerHTML=s1?`<p>Formule : ${esc(s1.subscription_plans?.name)}<br><span class="badge ${live?'ok':'bad'}">${live?'Actif':s1.status==='suspended'?'Suspendu':'Expiré'}</span>${s1.expires_at?`<br><span class="mut">Valable jusqu'au ${fmt(s1.expires_at)}</span>`:''}</p>`:'<p>Formule : Gratuit</p>';
+ const ss=await subState();
+ $('#sbs').innerHTML=ss.required?(ss.active?`<p><span class="badge ok">Abonnement actif</span><br><span class="mut">Jusqu'au ${fmt(ss.expires_at)}</span></p>`:payHtml(ss)):'<p class="mut">Aucun abonnement requis pour le moment.</p>';
+ if(ss.required&&!ss.active)payBind();
+ const{data}=await sb.from('notifications').select('*').eq('user_id',me.id).order('created_at',{ascending:false}).limit(10);
+ $('#n').innerHTML=(data||[]).length?data.map(n=>`<p><b>${esc(n.title)}</b><br>${esc(n.body||'')}<br><small class="mut">${fmt(n.created_at)}</small></p>`).join(''):'<p class="mut">Aucune notification.</p>'}
+start();
+</script></body></html>

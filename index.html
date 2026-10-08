@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SENDROP</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--y:#FFC400;--y2:#FFD84D;--yd:#D9A000;--ink:#17150E;--mut:#6C6858;--ln:#EDE5C4;--tint:#FFF8DC;--err:#B3261E;--ok:#1E7B3A}
+*{box-sizing:border-box}html,body{margin:0}
+body{font:400 16px/1.5 Manrope,system-ui,sans-serif;background:#fff;color:var(--ink);padding-top:env(safe-area-inset-top,0)}
+h1,h2,.top b,.brand b{font-family:'Bricolage Grotesque',Manrope,system-ui,sans-serif;letter-spacing:-.03em}
+h1{font-size:2.4rem;font-weight:800;margin:0;line-height:1}h2{font-size:1.45rem;font-weight:800;margin:.2rem 0 1rem}
+.mut,.sub{color:var(--mut)}.ic{width:22px;height:22px;display:block;margin:0 auto 2px}
+.logo{display:block;overflow:visible}.logo .bx{transform-origin:32px 56px;animation:hop 1.9s ease-in-out infinite}.logo .sh{transform-origin:32px 59px;animation:shd 1.9s ease-in-out infinite}
+@keyframes hop{0%,100%{transform:translateY(0) rotate(0)}28%{transform:translateY(-7px) rotate(-4deg)}55%{transform:translateY(-2px) rotate(3deg)}78%{transform:translateY(-4px) rotate(-1deg)}}
+@keyframes shd{0%,100%{transform:scaleX(1);opacity:.25}28%{transform:scaleX(.7);opacity:.12}55%{transform:scaleX(.9);opacity:.2}}
+@media(prefers-reduced-motion:reduce){.logo *{animation:none!important}}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}.brand .logo{width:68px;height:68px}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;background:#fff;border-bottom:3px solid var(--y);padding:8px 16px}
+.top .logo{width:36px;height:36px}.top b{font-size:1.3rem;font-weight:800}.tag{background:var(--ink);color:var(--y);font-weight:800;font-size:.7rem;padding:2px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.06em}
+.auth{max-width:440px;margin:0 auto;padding:7vh 20px 24px}
+.card{background:#fff;border:1.5px solid var(--ln);border-radius:16px;padding:16px;margin:0 0 14px}
+.hero{background:var(--y);border-radius:20px;padding:20px;margin:0 0 16px}.hero h2{font-size:1.8rem;margin:0 0 4px}.hero p{margin:0 0 14px}
+label{display:block;font-weight:600;font-size:.9rem;margin:0 0 12px}
+input,select,textarea{width:100%;font:inherit;padding:11px 12px;margin-top:5px;border:1.5px solid var(--ln);border-radius:12px;background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{border-color:var(--y);outline:3px solid #FFE88A;outline-offset:0}
+textarea{min-height:76px;resize:vertical}
+button{font:800 1rem Manrope,sans-serif;border:0;border-radius:12px;padding:12px 16px;background:var(--y);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 3px 0 var(--yd);transition:transform .08s,box-shadow .08s}
+button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--yd)}button:disabled{opacity:.5;cursor:default}
+button.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--ink);box-shadow:none}button.danger{background:var(--err);color:#fff;box-shadow:none}
+button.sm{width:auto;padding:7px 14px}
+a.btn{display:block;text-align:center;text-decoration:none;font-weight:800;padding:12px;border-radius:12px;border:1.5px solid var(--ink);color:var(--ink);margin:10px 0}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.err{color:var(--err);min-height:1.4em;margin:0 0 8px;font-size:.9rem}
+#main{max-width:720px;margin:0 auto;padding:18px 16px calc(92px + env(safe-area-inset-bottom,0))}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:4px;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0));z-index:6}
+nav button{background:none;color:var(--mut);box-shadow:none;border-radius:12px;padding:8px 2px;font-size:.7rem;font-weight:700}
+nav button.on{color:var(--ink)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.seg button{background:#fff;color:var(--ink);border:1.5px solid var(--ln);box-shadow:none}.seg button.on{background:var(--y);border-color:var(--y)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stats .card{margin:0}.stats b{display:block;font-family:'Bricolage Grotesque',Manrope,sans-serif;font-size:2rem;font-weight:800;line-height:1.1}
+.row{display:flex;gap:8px}.row button{width:auto}.between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#map,#omap{height:300px;border-radius:16px;margin:10px 0;border:1.5px solid var(--ln);z-index:0}
+.res div{padding:9px 4px;border-bottom:1px solid var(--ln);cursor:pointer;font-size:.9rem}
+.item{cursor:pointer;display:block}.item small{color:var(--mut)}
+.badge{display:inline-block;background:var(--tint);border:1px solid var(--y);font-weight:700;font-size:.76rem;padding:2px 10px;border-radius:99px}
+.badge.ok{background:var(--ok);border-color:var(--ok);color:#fff}.badge.bad{background:var(--err);border-color:var(--err);color:#fff}
+.tl{list-style:none;margin:0;padding:0 0 0 20px;border-left:3px solid var(--ln)}
+.tl li{position:relative;padding:5px 0;color:var(--mut)}.tl li:before{content:"";position:absolute;left:-29px;top:11px;width:11px;height:11px;border-radius:50%;background:#fff;border:2px solid var(--ln)}
+.tl li.done{color:var(--ink)}.tl li.done:before{background:var(--ink);border-color:var(--ink)}.tl li.cur{color:var(--ink);font-weight:800}.tl li.cur:before{background:var(--y);border-color:var(--ink);box-shadow:0 0 0 4px #FFE88A}
+.stars{display:flex;gap:6px;margin:8px 0}.stars button{background:#fff;color:var(--ink);border:1.5px solid var(--ln);box-shadow:none;padding:9px}.stars button.on{background:var(--y);border-color:var(--y)}
+.unread{border-left:6px solid var(--y)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0));background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:9999;max-width:90%}
+nav{background:#fff;border-top:3px solid var(--y)}nav button.on{background:var(--y)}
+</style></head><body>
+<div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SB='https://tjcaznqcqoevwnuievkl.supabase.co',KEY='sb_publishable_IL0vaCubk7751fe-TFWnQw_AN2gYM5X';
+const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqY2F6bnFjcW9ldndudWlldmtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzODg0MDcsImV4cCI6MjEwNjk2NDQwN30.CbYncNRm7BgwAZd_G3oI_FYUCgEVzKwynjx8PRCIHBw';
+const sb=supabase.createClient(SB,KEY);
+const mail=p=>p.slice(1)+'@clients.swiftdrop.app';
+const $=(s,e=document)=>e.querySelector(s),app=$('#app');
+const LOGO='<svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Sendrop"><ellipse class="sh" cx="32" cy="59" rx="17" ry="3" fill="#17150E" opacity=".25"/><g class="bx" stroke="#17150E" stroke-width="2.2" stroke-linejoin="round"><path d="M10 22 L32 32 L32 56 L10 46 Z" fill="#F2B705"/><path d="M32 32 L54 22 L54 46 L32 56 Z" fill="#E0A100"/><path d="M32 12 L54 22 L32 32 L10 22 Z" fill="#FFD84D"/><path d="M21 17 L43 27" stroke="#fff" stroke-width="6"/><path d="M32 12 L54 22 L32 32 L10 22 Z" fill="none"/><path d="M38 41 L48 36.5 L48 43 L38 47.5 Z" fill="#fff" stroke-width="1.6"/></g></svg>';
+{const l=document.createElement('link');l.rel='icon';l.href='data:image/svg+xml,'+encodeURIComponent(LOGO);document.head.append(l)}
+
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ST={pending:'Demande créée',searching_driver:"Recherche d'un livreur",driver_assigned:'Livreur trouvé',driver_arriving:'Livreur en route vers la récupération',driver_arrived:'Livreur arrivé',picked_up:'Colis récupéré',in_transit:'Livraison en cours',delivered:'Colis livré',cancelled:'Annulée',disputed:'Litige en cours'};
+const FLOW=['pending','searching_driver','driver_assigned','driver_arriving','driver_arrived','picked_up','in_transit','delivered'];
+const P={home:'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',plus:'<path d="M12 5v14M5 12h14"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'};
+const ic=n=>`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${P[n]}</svg>`;
+let me,prof,main,map,timer,D,ch;
+const empty=t=>`<div class="card mut">${t}</div>`;
+const fmt=d=>new Date(d).toLocaleString('fr-FR',{dateStyle:'medium',timeStyle:'short'});
+function toast(t){const e=document.createElement('div');e.id='toast';e.textContent=t;document.body.append(e);setTimeout(()=>e.remove(),3500)}
+const geo=()=>new Promise((ok,ko)=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>ok(p.coords),ko,{enableHighAccuracy:true,timeout:15000}):ko());
+function clean(){clearInterval(timer);if(ch){sb.removeChannel(ch);ch=null}if(map){map.remove();map=null}}
+function normPhone(v){let p=v.replace(/[\s.\-()]/g,'');if(/^7\d{8}$/.test(p))p='+221'+p;if(/^221\d{9}$/.test(p))p='+'+p;return/^\+2217\d{8}$/.test(p)?p:null}
+
+/* ---------- Authentification ---------- */
+const FNB=SB+'/functions/v1/',HD={'Content-Type':'application/json',apikey:KEY,Authorization:'Bearer '+ANON};
+const call=async(n,b)=>{try{const r=await fetch(FNB+n,{method:'POST',headers:HD,body:JSON.stringify(b)});return{ok:r.ok,status:r.status,j:await r.json().catch(()=>({}))}}catch{return{ok:false,status:0,j:{}}}};
+function viewAuth(msg='',mode='login',st=null){
+ const reg=mode==='reg',rs=mode==='reset',cd=!!(st&&st.step==='code');
+ app.innerHTML=`<main class="auth"><div class="brand">${LOGO}<h1>SENDROP</h1></div><p class="sub">Livraison rapide au Sénégal.</p>
+ <div class="seg"><button data-m="login" class="${mode==='login'?'on':''}">Connexion</button><button data-m="reg" class="${reg?'on':''}">Créer un compte</button></div>
+ <form id="f" class="card">${cd?`<p class="mut">Un code a été envoyé sur WhatsApp au ${esc(st.phone)}.</p><label>Code reçu<input id="cd" inputmode="numeric" autocomplete="one-time-code" required></label>`:
+ `${rs?'<p class="mut">Entrez votre numéro et votre nouveau mot de passe. Un code vous sera envoyé par WhatsApp.</p>':''}${reg?`<label>Prénom<input id="fn" required autocomplete="given-name"></label><label>Nom<input id="ln" required autocomplete="family-name"></label>`:''}<label>Téléphone<input id="ph" inputmode="tel" placeholder="77 000 00 00" required autocomplete="tel" value="${esc(st&&st.phone||'')}"></label>
+ <label>${rs?'Nouveau mot de passe':'Mot de passe'}${reg||rs?' (8 caractères minimum)':''}<input id="pw" type="password" minlength="8" required autocomplete="${reg||rs?'new-password':'current-password'}"></label>`}
+ <p class="err" id="e">${esc(msg)}</p><button id="b">${cd?'Valider':reg?'Créer mon compte':rs?'Recevoir un code':'Se connecter'}</button>
+ ${mode==='login'?'<p></p><button type="button" class="ghost" id="fg">Mot de passe oublié</button>':''}</form></main>`;
+ $('.seg').onclick=e=>{const b=e.target.closest('button');if(b)viewAuth('',b.dataset.m)};
+ const fg=$('#fg');if(fg)fg.onclick=()=>viewAuth('','reset');
+ $('#f').onsubmit=async ev=>{ev.preventDefault();const e=$('#e'),btn=$('#b');btn.disabled=true;
+  const fail=m=>{btn.disabled=false;e.textContent=m};
+  if(cd){const r=await call('account',Object.assign({},st.payload,{phone:st.phone,otp_code:$('#cd').value.trim()}));
+   if(!r.ok)return fail(r.j.error||'Code incorrect ou expiré.');return login(st.phone,st.payload.password,fail)}
+  const phone=normPhone($('#ph').value);if(!phone)return fail('Numéro invalide. Exemple : 77 000 00 00');
+  const pw=$('#pw').value;
+  if(!reg&&!rs)return login(phone,pw,fail);
+  const payload=rs?{mode:'reset',password:pw}:{mode:'client',first_name:$('#fn').value,last_name:$('#ln').value,password:pw};
+  const o=await call('send-otp',{phone});
+  if(o.status===503){
+   if(rs)return fail("La réinitialisation n'est pas encore disponible. Contactez l'administrateur.");
+   const r=await call('account',Object.assign({},payload,{phone}));if(!r.ok)return fail(r.j.error||'Inscription impossible.');return login(phone,pw,fail)}
+  if(!o.ok)return fail(o.j.error||"Impossible d'envoyer le code. Réessayez plus tard.");
+  viewAuth('',mode,{step:'code',phone,payload})}}
+async function login(phone,pw,fail){const{error}=await sb.auth.signInWithPassword({email:mail(phone),password:pw});
+ if(error){if(fail)fail('Numéro ou mot de passe incorrect.');else viewAuth('Connexion impossible. Réessayez.');return}start()}
+async function start(){
+ const{data:{session}}=await sb.auth.getSession();if(!session)return viewAuth();
+ me=session.user;
+ const{data:p}=await sb.from('profiles').select('*').eq('id',me.id).single();
+ if(!p||p.role!=='client'){await sb.auth.signOut();return viewAuth("Ce compte n'est pas un compte client.")}
+ if(p.status!=='active'){await sb.auth.signOut();return viewAuth('Ce compte est suspendu ou banni.')}
+ prof=p;shell();go('home')}
+
+/* ---------- Structure ---------- */
+const TABS=[['home','Accueil','home'],['new','Nouvelle livraison','plus'],['list','Mes livraisons','list'],['notif','Notifications','bell'],['me','Profil','user']];
+function shell(){
+ app.innerHTML=`<header class="top">${LOGO}<b>SENDROP</b></header><div id="main"></div><nav>${TABS.map(t=>`<button data-t="${t[0]}">${ic(t[2])}${t[1]}</button>`).join('')}</nav>`;
+ main=$('#main');$('nav').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.t)};
+ sb.channel('nt').on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:`user_id=eq.${me.id}`},p=>toast(p.new.title+' : '+(p.new.body||''))).subscribe()}
+function go(t){clean();document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+ ({home:vHome,new:vNew,list:vList,notif:vNotif,me:vMe})[t]()}
+
+/* ---------- Accueil ---------- */
+async function vHome(){
+ main.innerHTML='<p class="mut">Chargement...</p>';
+ const q=()=>sb.from('orders').select('id',{count:'exact',head:true}).eq('client_id',me.id);
+ const[a,b]=await Promise.all([q().not('status','in','(delivered,cancelled,disputed)'),q().eq('status','delivered')]);
+ const na=a.count||0,nb=b.count||0;
+ main.innerHTML=`<div class="hero"><h2>Bonjour ${esc(prof.first_name||'')}</h2><p>Où doit aller votre colis ?</p><button id="cmd" class="ghost">Commander un livreur</button></div>
+ ${na+nb?`<div class="stats"><div class="card"><b>${na}</b>Livraisons en cours</div><div class="card"><b>${nb}</b>Livraisons terminées</div></div>`:empty('Aucune donnée disponible. Vos livraisons apparaîtront ici.')}`;
+ $('#cmd').onclick=()=>go('new')}
+
+/* ---------- Nouvelle livraison ---------- */
+const rev=async(la,ln)=>{try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${la}&lon=${ln}`);return(await r.json()).display_name||null}catch{return null}};
+function mkMap(id){const m=L.map(id).setView([14.7167,-17.4677],12);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(m);return m}
+async function route(a,b,color){try{const r=await(await fetch(`https://router.project-osrm.org/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson`)).json();
+ if(!map)return;return L.polyline(r.routes[0].geometry.coordinates.map(x=>[x[1],x[0]]),{color,weight:5,opacity:.8}).addTo(map)}catch{return null}}
+const hav=(a,b,c,d)=>{const r=x=>x*Math.PI/180,h=Math.sin(r(c-a)/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(r(d-b)/2)**2;return 12742*Math.asin(Math.sqrt(h))};
+function vNew(){
+ D={pick:null,drop:null,mode:'pick',mk:{}};
+ main.innerHTML=`<h2>Nouvelle livraison</h2><div class="card">
+ <div class="seg"><button data-m="pick" class="on">Récupération</button><button data-m="drop">Destination</button></div>
+ <div class="row"><input id="q" placeholder="Rechercher un lieu ou une adresse" aria-label="Rechercher un lieu"><button id="sq">Chercher</button></div>
+ <div class="res" id="res"></div><p></p><button class="ghost" id="loc">Utiliser ma position actuelle</button>
+ <div id="map"></div><p id="info" class="mut">Choisissez le point de récupération, puis la destination, en cherchant un lieu ou en touchant la carte.</p>
+ <label>Informations sur le colis<textarea id="pkg" placeholder="Contenu, taille, précautions" required></textarea></label>
+ <button id="go">Confirmer la commande</button></div>`;
+ map=mkMap('map');
+ main.querySelector('.seg').onclick=e=>{const b=e.target.closest('button');if(!b)return;D.mode=b.dataset.m;main.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b))};
+ map.on('click',e=>setPt(D.mode,e.latlng.lat,e.latlng.lng));
+ $('#sq').onclick=async()=>{const v=$('#q').value.trim();if(!v)return;
+  try{const r=await(await fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=sn&limit=5&q=${encodeURIComponent(v)}`)).json();
+   $('#res').innerHTML=r.length?r.map((x,i)=>`<div data-i="${i}">${esc(x.display_name)}</div>`).join(''):'<p class="mut">Aucun résultat.</p>';
+   $('#res').onclick=ev=>{const d=ev.target.closest('[data-i]');if(!d)return;const x=r[d.dataset.i];$('#res').innerHTML='';setPt(D.mode,+x.lat,+x.lon,x.display_name)}
+  }catch{toast('Recherche indisponible. Touchez la carte pour choisir le lieu.')}};
+ $('#loc').onclick=async()=>{try{const c=await geo();setPt(D.mode,c.latitude,c.longitude)}catch{toast("Position refusée ou indisponible. Autorisez la localisation dans votre navigateur.")}};
+ $('#go').onclick=confirmOrder}
+async function setPt(k,la,ln,addr){
+ D[k]={lat:la,lng:ln,addr:addr||null};
+ if(D.mk[k])D.mk[k].setLatLng([la,ln]);else D.mk[k]=L.marker([la,ln]).addTo(map).bindTooltip(k==='pick'?'Récupération':'Destination');
+ map.setView([la,ln],15);if(!addr)D[k].addr=await rev(la,ln);
+ D.km=null;D.price=null;if(D.line){map.removeLayer(D.line);D.line=null}if(D.pick&&D.drop){map.fitBounds([[D.pick.lat,D.pick.lng],[D.drop.lat,D.drop.lng]],{padding:[30,30]});await calc()}
+ info()}
+async function calc(){const a=D.pick,b=D.drop;D.km=null;D.min=null;
+ try{const r=await(await fetch(`https://router.project-osrm.org/route/v1/driving/${a.lng},${a.lat};${b.lng},${b.lat}?overview=full&geometries=geojson`)).json();
+  D.km=r.routes[0].distance/1000;D.min=Math.round(r.routes[0].duration/60);D.real=true;if(D.line)map.removeLayer(D.line);D.line=L.polyline(r.routes[0].geometry.coordinates.map(x=>[x[1],x[0]]),{color:'#17150E',weight:5,opacity:.8}).addTo(map)}
+ catch{D.km=hav(a.lat,a.lng,b.lat,b.lng);D.real=false}
+ try{const{data}=await sb.rpc('compute_price',{p_km:+D.km.toFixed(2)});D.price=data}catch{D.price=null}}
+function info(){const l=k=>D[k]?esc(D[k].addr||`${D[k].lat.toFixed(5)}, ${D[k].lng.toFixed(5)}`):'à choisir';
+ $('#info').innerHTML=`<b>Récupération :</b> ${l('pick')}<br><b>Destination :</b> ${l('drop')}`+(D.km!=null?`<br><b>Distance :</b> ${D.km.toFixed(1)} km${D.real?` (environ ${D.min} min)`:' à vol d\'oiseau'}<br><b>Prix :</b> ${D.price?D.price.toLocaleString('fr-FR')+' FCFA':'tarif non défini pour le moment'}`:'')}
+async function confirmOrder(){
+ if(!D.pick||!D.drop)return toast('Choisissez la récupération et la destination.');
+ const pk=$('#pkg').value.trim();if(!pk)return toast('Décrivez le colis.');
+ $('#go').disabled=true;
+ const{data,error}=await sb.from('orders').insert({client_id:me.id,pickup_lat:D.pick.lat,pickup_lng:D.pick.lng,pickup_address:D.pick.addr,drop_lat:D.drop.lat,drop_lng:D.drop.lng,drop_address:D.drop.addr,distance_km:D.km!=null?+D.km.toFixed(2):null,package_info:pk}).select().single();
+ if(error){console.error(error);$('#go').disabled=false;return toast('Commande impossible. Réessayez.')}
+ toast('Demande créée');openOrder(data.id)}
+
+/* ---------- Mes livraisons ---------- */
+function vList(){
+ let page=0;
+ main.innerHTML='<h2>Mes livraisons</h2><div id="l"></div><button class="ghost" id="m" hidden>Voir plus</button>';
+ $('#l').onclick=e=>{const r=e.target.closest('[data-id]');if(r)openOrder(r.dataset.id)};
+ async function load(){
+  const{data}=await sb.from('orders').select('id,status,drop_address,created_at,distance_km').eq('client_id',me.id).order('created_at',{ascending:false}).range(page*15,page*15+14);
+  if(page===0&&!(data||[]).length){$('#l').innerHTML=empty('Aucune livraison pour le moment.');return}
+  $('#l').insertAdjacentHTML('beforeend',data.map(o=>`<a class="card item" data-id="${o.id}"><span class="badge ${o.status==='delivered'?'ok':''}">${ST[o.status]}</span><br>${esc(o.drop_address||'Destination sur la carte')}<br><small>${fmt(o.created_at)}${o.distance_km?` - ${o.distance_km} km`:''}</small></a>`).join(''));
+  $('#m').hidden=data.length<15;page++}
+ $('#m').onclick=load;load()}
+
+/* ---------- Suivi d'une livraison ---------- */
+async function openOrder(id){
+ clean();
+ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));
+ main.innerHTML='<button class="ghost sm" id="bk">Retour</button><div id="omap"></div><div id="tl"></div>';
+ $('#bk').onclick=()=>go('list');
+ map=mkMap('omap');let sig='',mk={};
+ const draw=async()=>{
+  const{data:o}=await sb.from('orders').select('*').eq('id',id).single();if(!o||!map)return;
+  if(!mk.p){mk.p=L.marker([o.pickup_lat,o.pickup_lng]).addTo(map).bindTooltip('Récupération');mk.d=L.marker([o.drop_lat,o.drop_lng]).addTo(map).bindTooltip('Destination');map.fitBounds([[o.pickup_lat,o.pickup_lng],[o.drop_lat,o.drop_lng]],{padding:[30,30]});route([o.pickup_lat,o.pickup_lng],[o.drop_lat,o.drop_lng],'#17150E')}
+  let drv=null,loc=null;
+  if(o.driver_id){const[a,b]=await Promise.all([sb.rpc('get_order_driver',{p_order:id}),sb.from('driver_locations').select('lat,lng').eq('driver_id',o.driver_id).maybeSingle()]);drv=a.data&&a.data[0];loc=b.data}
+  if(loc&&!['delivered','cancelled'].includes(o.status)){if(mk.v)mk.v.setLatLng([loc.lat,loc.lng]);else mk.v=L.circleMarker([loc.lat,loc.lng],{radius:9,color:'#17150E',fillColor:'#FFC400',fillOpacity:1}).addTo(map).bindTooltip('Livreur')}
+  const rt=o.client_confirmed_at?(await sb.from('ratings').select('score').eq('order_id',id).maybeSingle()).data:null;
+  const s=JSON.stringify([o.status,o.client_confirmed_at,rt,drv]);if(s===sig)return;sig=s;paint(o,drv,rt)};
+ await draw();timer=setInterval(draw,30000);
+ ch=sb.channel('o'+id)
+  .on('postgres_changes',{event:'UPDATE',schema:'public',table:'orders',filter:`id=eq.${id}`},()=>draw())
+  .on('postgres_changes',{event:'*',schema:'public',table:'driver_locations'},p=>{const n=p.new;if(!n||n.lat==null||!map)return;
+   if(mk.v)mk.v.setLatLng([n.lat,n.lng]);else mk.v=L.circleMarker([n.lat,n.lng],{radius:9,color:'#17150E',fillColor:'#FFC400',fillOpacity:1}).addTo(map).bindTooltip('Livreur')})
+  .subscribe()}
+function paint(o,drv,rt){
+ const i=FLOW.indexOf(o.status);
+ const steps=['cancelled','disputed'].includes(o.status)?`<p><span class="badge">${ST[o.status]}</span></p>`:`<ul class="tl">${FLOW.map((s,k)=>`<li class="${k<i?'done':k===i?'cur':''}${o.status==='delivered'&&k===i?' done':''}">${ST[s]}</li>`).join('')}${o.client_confirmed_at?'<li class="done cur">Livraison confirmée</li>':''}</ul>`;
+ const dv=drv?`<div class="card"><b>Votre livreur</b><br>${esc(drv.first_name||'')} - ${esc(drv.vehicle_type||'véhicule non précisé')}<br>Note : ${drv.rating_count?`${drv.rating_avg} sur 5 (${drv.rating_count} avis)`:'pas encore de note'}</div>`:'';
+ let act='';
+ if(o.status==='delivered'&&!o.client_confirmed_at)act='<button id="ok">Colis bien reçu</button>';
+ else if(o.client_confirmed_at&&!rt)act=`<div class="card"><b>Notez votre livreur</b><div class="stars">${[1,2,3,4,5].map(n=>`<button data-s="${n}">${n}</button>`).join('')}</div><textarea id="cm" placeholder="Commentaire (facultatif)"></textarea><p></p><button id="rt">Envoyer ma note</button></div>`;
+ else if(rt)act=`<div class="card">Merci. Vous avez noté ce livreur ${rt.score} sur 5.</div>`;
+ $('#tl').innerHTML=`<div class="card"><b>${esc(o.drop_address||'Destination')}</b><br><small class="mut">${fmt(o.created_at)}${o.distance_km?` - ${o.distance_km} km`:''}${o.price_xof?` - ${o.price_xof.toLocaleString('fr-FR')} FCFA`:''}</small><p></p>${steps}</div>${dv}${act}
+ <div class="card"><b>Un problème ?</b><label>Type<select id="rc"><option value="delivery">Problème de livraison</option><option value="suspicious">Comportement suspect</option><option value="not_received">Colis non reçu</option><option value="fraud">Fraude</option><option value="payment">Problème de paiement</option><option value="safety">Problème de sécurité</option><option value="other">Autre</option></select></label>
+ <label>Description<textarea id="rd"></textarea></label><button class="ghost" id="rs">Envoyer le signalement</button><p></p><button class="danger" id="em">Signaler une urgence</button></div>`;
+ const ok=$('#ok');if(ok)ok.onclick=async()=>{const{error}=await sb.rpc('confirm_receipt',{p_order:o.id});toast(error?'Confirmation impossible.':'Réception confirmée');sig=''};
+ let sc=0;document.querySelectorAll('.stars button').forEach(b=>b.onclick=()=>{sc=+b.dataset.s;document.querySelectorAll('.stars button').forEach(x=>x.classList.toggle('on',+x.dataset.s<=sc))});
+ const rb=$('#rt');if(rb)rb.onclick=async()=>{if(!sc)return toast('Choisissez une note de 1 à 5.');const{error}=await sb.from('ratings').insert({order_id:o.id,driver_id:o.driver_id,client_id:me.id,score:sc,comment:$('#cm').value.trim()||null});toast(error?"Note impossible.":'Note enregistrée')};
+ $('#rs').onclick=async()=>{const d=$('#rd').value.trim();if(!d)return toast('Décrivez le problème.');const{error}=await sb.from('reports').insert({author_id:me.id,order_id:o.id,category:$('#rc').value,description:d});toast(error?'Envoi impossible.':'Signalement envoyé');if(!error)$('#rd').value=''};
+ $('#em').onclick=async()=>{let c=null;try{c=await geo()}catch{}
+  const{error}=await sb.from('emergency_requests').insert({user_id:me.id,order_id:o.id,description:$('#rd').value.trim()||null,lat:c?c.latitude:null,lng:c?c.longitude:null});
+  toast(error?"Envoi impossible. Appelez les secours si nécessaire.":'Urgence transmise à SENDROP')}}
+
+/* ---------- Notifications / Profil ---------- */
+async function vNotif(){
+ main.innerHTML='<h2>Notifications</h2><div id="n"><p class="mut">Chargement...</p></div>';
+ const{data}=await sb.from('notifications').select('*').eq('user_id',me.id).order('created_at',{ascending:false}).limit(30);
+ $('#n').innerHTML=(data||[]).length?data.map(n=>`<div class="card ${n.read_at?'':'unread'}" data-id="${n.id}"><b>${esc(n.title)}</b><br>${esc(n.body||'')}<br><small class="mut">${fmt(n.created_at)}</small></div>`).join(''):empty('Aucune notification.');
+ $('#n').onclick=async e=>{const c=e.target.closest('.unread');if(!c)return;c.classList.remove('unread');await sb.from('notifications').update({read_at:new Date().toISOString()}).eq('id',c.dataset.id)}}
+function vMe(){
+ main.innerHTML=`<h2>Profil</h2><div class="card"><b>${esc(prof.first_name||'')} ${esc(prof.last_name||'')}</b><br>${esc(prof.phone||me.phone||'')}</div><button class="ghost" id="lo">Se déconnecter</button>`;
+ $('#lo').onclick=async()=>{await sb.auth.signOut();sb.removeAllChannels();me=prof=null;viewAuth()}}
+
+start();
+</script></body></html>

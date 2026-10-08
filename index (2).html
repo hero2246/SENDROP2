@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>SENDROP Administration</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--y:#FFC400;--yd:#D9A000;--ink:#17150E;--mut:#6C6858;--ln:#EADFB3;--tint:#FFF8DC;--bg:#FFFCF0;--err:#B3261E;--ok:#1E7B3A}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{font:400 15px/1.5 Manrope,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+h1,h2,h3,.brand b{font-family:'Bricolage Grotesque',Manrope,system-ui,sans-serif;letter-spacing:-.03em}
+h1{font-size:2rem;font-weight:800;margin:0}h2{font-size:1.4rem;font-weight:800;margin:0 0 14px}h3{margin:14px 0 8px}
+.mut{color:var(--mut)}.login{max-width:420px;margin:10vh auto;padding:0 20px}
+.logo{display:block;overflow:visible}.logo .bx{transform-origin:32px 56px;animation:hop 1.9s ease-in-out infinite}.logo .sh{transform-origin:32px 59px;animation:shd 1.9s ease-in-out infinite}
+@keyframes hop{0%,100%{transform:translateY(0) rotate(0)}28%{transform:translateY(-7px) rotate(-4deg)}55%{transform:translateY(-2px) rotate(3deg)}78%{transform:translateY(-4px) rotate(-1deg)}}
+@keyframes shd{0%,100%{transform:scaleX(1);opacity:.25}28%{transform:scaleX(.7);opacity:.12}55%{transform:scaleX(.9);opacity:.2}}
+@media(prefers-reduced-motion:reduce){.logo *{animation:none!important}}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:8px}.brand .logo{width:60px;height:60px}.brand div{display:flex;flex-direction:column;line-height:1.1}.brand b{font-size:1.5rem}.brand span{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100%}
+aside{background:var(--y);color:var(--ink);padding:18px 12px;position:sticky;top:0;height:100vh;overflow:auto}
+aside .brand{padding:0 8px 14px}aside .brand .logo{width:46px;height:46px}aside .brand b{font-size:1.3rem}
+aside button{display:block;width:100%;text-align:left;background:none;color:var(--ink);border:0;padding:10px 12px;border-radius:10px;font:700 .93rem Manrope,sans-serif;cursor:pointer}
+aside button:hover{background:#FFD84D}aside button.on{background:#fff;box-shadow:0 2px 0 var(--yd)}aside .out{margin-top:20px;border:1.5px solid var(--ink)}
+main{padding:24px;min-width:0}
+.card{background:#fff;border:1.5px solid var(--ln);border-radius:14px;padding:16px;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-bottom:14px}
+.grid .card{margin:0;border-top:5px solid var(--y)}.grid b{display:block;font-family:'Bricolage Grotesque',Manrope,sans-serif;font-size:1.9rem;font-weight:800;line-height:1.15}
+label{display:block;font-weight:600;font-size:.85rem;margin:0 0 10px}
+input,select,textarea{width:100%;font:inherit;padding:9px 11px;margin-top:4px;border:1.5px solid var(--ln);border-radius:10px;background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{border-color:var(--y);outline:3px solid #FFE88A}
+button.b{font:800 .9rem Manrope,sans-serif;border:0;border-radius:10px;padding:9px 14px;background:var(--y);color:var(--ink);cursor:pointer;box-shadow:0 2px 0 var(--yd)}
+button.b.g{background:#fff;color:var(--ink);border:1.5px solid var(--ink);box-shadow:none}button.b.r{background:var(--err);color:#fff;box-shadow:none}button.b.k{background:var(--ink);color:var(--y);box-shadow:none}button.b:disabled{opacity:.5}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:0 1 auto}.row input,.row select{width:auto;min-width:160px;margin:0}
+.badge{display:inline-block;background:var(--tint);border:1px solid var(--y);font-weight:700;font-size:.74rem;padding:2px 9px;border-radius:99px}
+.badge.ok{background:#D7F0E0;border-color:#9BD3AE;color:#14502A}.badge.bad{background:#F8DAD7;border-color:#E6A39D;color:#8C1D18}.badge.w{background:#FFEFB0;border-color:var(--y);color:#5A4300}
+.tbl{width:100%;border-collapse:collapse}.tbl td,.tbl th{padding:9px 8px;border-bottom:1px solid var(--ln);text-align:left;vertical-align:top}.tbl th{font-size:.78rem;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.scroll{overflow-x:auto}.err{color:var(--err);min-height:1.3em}
+#toast{position:fixed;right:20px;bottom:20px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;z-index:99;max-width:80%}
+@media(max-width:760px){.layout{grid-template-columns:1fr}aside{position:static;height:auto;display:flex;flex-wrap:wrap;gap:4px}aside .brand{width:100%}aside button{width:auto}main{padding:16px}}
+</style></head><body>
+<div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SBU='https://tjcaznqcqoevwnuievkl.supabase.co',KEY='sb_publishable_IL0vaCubk7751fe-TFWnQw_AN2gYM5X';
+const sb=supabase.createClient(SBU,KEY);
+const $=(s,e=document)=>e.querySelector(s),app=$('#app');
+const LOGO='<svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Sendrop"><ellipse class="sh" cx="32" cy="59" rx="17" ry="3" fill="#17150E" opacity=".25"/><g class="bx" stroke="#17150E" stroke-width="2.2" stroke-linejoin="round"><path d="M10 22 L32 32 L32 56 L10 46 Z" fill="#F2B705"/><path d="M32 32 L54 22 L54 46 L32 56 Z" fill="#E0A100"/><path d="M32 12 L54 22 L32 32 L10 22 Z" fill="#FFD84D"/><path d="M21 17 L43 27" stroke="#fff" stroke-width="6"/><path d="M32 12 L54 22 L32 32 L10 22 Z" fill="none"/><path d="M38 41 L48 36.5 L48 43 L38 47.5 Z" fill="#fff" stroke-width="1.6"/></g></svg>';
+{const l=document.createElement('link');l.rel='icon';l.href='data:image/svg+xml,'+encodeURIComponent(LOGO);document.head.append(l)}
+
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=d=>d?new Date(d).toLocaleString('fr-FR',{dateStyle:'medium',timeStyle:'short'}):'';
+const nm=p=>p?`${esc(p.first_name||'')} ${esc(p.last_name||'')}`.trim():'-';
+const DS={pending:'À compléter',under_review:'En vérification',approved:'Approuvé',rejected:'Refusé',correction_required:'Correction demandée',suspended:'Suspendu'};
+const OS={pending:'En attente',searching_driver:'Recherche livreur',driver_assigned:'Livreur assigné',driver_arriving:'En route',driver_arrived:'Arrivé',picked_up:'Récupéré',in_transit:'En livraison',delivered:'Livré',cancelled:'Annulé',disputed:'Litige'};
+const CS={pending:'En attente',valid:'Valide',expired:'Expiré',needs_review:'À revoir',rejected:'Refusé'};
+const DT={id_card:"Carte d'identité",passport:'Passeport',license:'Permis',insurance:'Assurance'};
+const RC={delivery:'Problème de livraison',suspicious:'Comportement suspect',not_received:'Colis non reçu',fraud:'Fraude',payment:'Problème de paiement',safety:'Problème de sécurité',other:'Autre'};
+const RS={open:'Ouvert',in_progress:'En cours',resolved:'Résolu',closed:'Clôturé'};
+let adm,main,cur;
+function toast(t){const e=document.createElement('div');e.id='toast';e.textContent=t;document.body.append(e);setTimeout(()=>e.remove(),3500)}
+async function pwned(pw){try{const h=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-1',new TextEncoder().encode(pw)))).map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+ const r=await fetch('https://api.pwnedpasswords.com/range/'+h.slice(0,5),{headers:{'Add-Padding':'true'}});if(!r.ok)return false;
+ return(await r.text()).split('\n').some(l=>{const[x,c]=l.trim().split(':');return x===h.slice(5)&&parseInt(c)>0})}catch{return false}}
+const can=p=>adm&&(adm.is_super||adm.permissions.includes(p));
+const log=(a,t,i,m)=>sb.rpc('admin_log',{p_action:a,p_type:t,p_target:String(i||''),p_meta:m||null});
+const empty=t=>`<div class="card mut">${t}</div>`;
+
+/* ---------- Connexion ---------- */
+function viewLogin(msg=''){
+ app.innerHTML=`<div class="login"><div class="brand">${LOGO}<div><b>SENDROP</b><span>Administration</span></div></div><p class="mut">Accès réservé.</p><form id="f" class="card"><label>Email<input id="em" type="email" required autocomplete="username"></label>
+ <label>Mot de passe<input id="pw" type="password" required autocomplete="current-password"></label><p class="err" id="e">${esc(msg)}</p><button class="b" id="b">Se connecter</button></form></div>`;
+ $('#f').onsubmit=async ev=>{ev.preventDefault();$('#b').disabled=true;
+  const{error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});
+  if(error){$('#b').disabled=false;$('#e').textContent='Identifiants incorrects.';return}start()}}
+async function start(){
+ const{data:{session}}=await sb.auth.getSession();if(!session)return viewLogin();
+ const{data:a}=await sb.from('admin_users').select('*').eq('id',session.user.id).maybeSingle();
+ if(!a||!a.active){await sb.auth.signOut();return viewLogin('Accès refusé.')}
+ adm=a;if(a.must_change_password)return viewChange();shell()}
+function viewChange(msg=''){
+ app.innerHTML=`<div class="login"><h1>Nouveau mot de passe</h1><p class="mut">Pour votre sécurité, définissez un mot de passe personnel avant de continuer : 12 caractères minimum, avec majuscule, minuscule et chiffre.</p>
+ <form id="f" class="card"><label>Nouveau mot de passe<input id="p1" type="password" required autocomplete="new-password"></label><label>Confirmer<input id="p2" type="password" required autocomplete="new-password"></label>
+ <p class="err" id="e">${esc(msg)}</p><button class="b">Enregistrer</button></form></div>`;
+ $('#f').onsubmit=async ev=>{ev.preventDefault();const a=$('#p1').value;
+  if(a!==$('#p2').value)return $('#e').textContent='Les deux mots de passe sont différents.';
+  if(a.length<12||!/[a-z]/.test(a)||!/[A-Z]/.test(a)||!/\d/.test(a))return $('#e').textContent='Mot de passe trop faible.';
+  if(await pwned(a))return $('#e').textContent='Ce mot de passe apparaît dans des fuites de données. Choisissez-en un autre.';
+  const{error}=await sb.auth.updateUser({password:a});if(error)return $('#e').textContent='Changement impossible. Utilisez un mot de passe différent.';
+  await sb.rpc('complete_password_change');start()}}
+
+/* ---------- Structure ---------- */
+const TABS=[['dc','Tableau de bord clients',null],['dd','Tableau de bord livreurs',null],['drv','Livreurs','view_drivers'],['usr','Utilisateurs','view_users'],['rep','Signalements et urgences','view_reports'],['fr','Alertes de fraude','view_reports'],['sub','Abonnements','manage_subscriptions'],['set','Tarifs','manage_settings'],['col','Collaborateurs','manage_collaborators'],['conn','Connexions','manage_settings'],['ntf','Notifications','send_notifications'],['log','Journal d\'activité','view_activity_logs']];
+function shell(){
+ app.innerHTML=`<div class="layout"><aside><div class="brand">${LOGO}<div><b>SENDROP</b><span>Administration</span></div></div>${TABS.filter(t=>!t[2]||can(t[2])).map(t=>`<button data-t="${t[0]}">${t[1]}</button>`).join('')}<button class="out" id="lo">Se déconnecter</button></aside><main id="main"></main></div>`;
+ main=$('#main');$('aside').onclick=e=>{const b=e.target.closest('button[data-t]');if(b)go(b.dataset.t)};
+ sb.channel('adm').on('postgres_changes',{event:'INSERT',schema:'public',table:'emergency_requests'},()=>{toast('Nouvelle urgence reçue');if(cur==='rep')go('rep')}).on('postgres_changes',{event:'INSERT',schema:'public',table:'reports'},()=>{toast('Nouveau signalement reçu');if(cur==='rep')go('rep')}).on('postgres_changes',{event:'INSERT',schema:'public',table:'fraud_alerts'},()=>{toast('Nouvelle alerte de fraude');if(cur==='fr')go('fr')}).subscribe();
+ $('#lo').onclick=async()=>{await sb.auth.signOut();sb.removeAllChannels();adm=null;viewLogin()};go('dc')}
+function go(t){cur=t;document.querySelectorAll('aside button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));main.onclick=null;main.innerHTML='<p class="mut">Chargement...</p>';({dc:vDc,dd:vDd,drv:vDrv,usr:vUsr,rep:vRep,sub:vSub,set:vSet,col:vCol,fr:vFr,conn:vConn,ntf:vNtf,log:vLog})[t]()}
+const st=async()=>(await sb.rpc('admin_stats')).data;
+const kp=(n,l)=>`<div class="card"><b>${n}</b>${l}</div>`;
+const none='<p class="mut">Aucune donnée disponible.</p>';
+
+/* ---------- Dashboards ---------- */
+async function vDc(){const s=await st();if(!s)return main.innerHTML=empty('Statistiques indisponibles.');
+ main.innerHTML=`<h2>Tableau de bord clients</h2><div class="grid">${kp(s.clients,'Clients inscrits')}${kp(s.active_clients_today,'Clients actifs aujourd\'hui')}${kp(s.orders,'Commandes')}${kp(s.orders_today,'Commandes aujourd\'hui')}${kp(s.cancelled,'Annulations')}${kp(s.avg_rating??'-','Satisfaction (note moyenne)')}${kp(s.open_reports,'Signalements ouverts')}${kp(s.open_emergencies,'Urgences ouvertes')}</div>
+ <div class="card"><b>Commandes par statut</b>${Object.keys(s.by_status).length?`<table class="tbl">${Object.entries(s.by_status).map(([k,v])=>`<tr><td>${OS[k]||k}</td><td>${v}</td></tr>`).join('')}</table>`:none}</div>`}
+async function vDd(){const s=await st();if(!s)return main.innerHTML=empty('Statistiques indisponibles.');
+ const d=s.drivers_by_status;
+ main.innerHTML=`<h2>Tableau de bord livreurs</h2><div class="grid">${kp(s.drivers,'Livreurs inscrits')}${kp(s.active_drivers_today,'Livreurs actifs aujourd\'hui')}${kp(s.delivered,'Livraisons terminées')}${kp(s.revenue?s.revenue.toLocaleString('fr-FR')+' FCFA':'-','Revenus des livraisons')}${kp(d.under_review||0,'Dossiers à vérifier')}${kp(d.approved||0,'Livreurs approuvés')}${kp(d.suspended||0,'Livreurs suspendus')}</div>
+ <div class="card"><b>Dossiers par statut</b>${Object.keys(d).length?`<table class="tbl">${Object.entries(d).map(([k,v])=>`<tr><td>${DS[k]||k}</td><td>${v}</td></tr>`).join('')}</table>`:none}</div>`}
+
+/* ---------- Livreurs ---------- */
+async function vDrv(){
+ main.innerHTML=`<h2>Livreurs</h2><div class="row card"><select id="fs"><option value="">Tous les statuts</option>${Object.entries(DS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select><button class="b g" id="rf">Actualiser</button></div><div id="l"></div><div id="d"></div>`;
+ const load=async()=>{let q=sb.from('drivers').select('id,status,vehicle_type,city,created_at,profiles(first_name,last_name,phone)').order('created_at',{ascending:false}).limit(40);
+  if($('#fs').value)q=q.eq('status',$('#fs').value);const{data}=await q;
+  $('#l').innerHTML=(data||[]).length?`<div class="card scroll"><table class="tbl"><tr><th>Livreur</th><th>Téléphone</th><th>Véhicule</th><th>Ville</th><th>Statut</th><th></th></tr>${data.map(r=>`<tr><td>${nm(r.profiles)}</td><td>${esc(r.profiles?.phone)}</td><td>${esc(r.vehicle_type)}</td><td>${esc(r.city)}</td><td><span class="badge ${r.status==='approved'?'ok':r.status==='under_review'?'w':''}">${DS[r.status]}</span></td><td><button class="b g" data-id="${r.id}">Ouvrir le dossier</button></td></tr>`).join('')}</table></div>`:empty('Aucun livreur pour ce filtre.')};
+ $('#fs').onchange=load;$('#rf').onclick=load;
+ $('#l').onclick=e=>{const b=e.target.closest('[data-id]');if(b)detail(b.dataset.id)};load()}
+const norm=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+async function ocr(url){if(!window.Tesseract){await new Promise((ok,ko)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';sc.onload=ok;sc.onerror=ko;document.head.append(sc)})}
+ return (await Tesseract.recognize(url,'fra')).data.text}
+function analyse(text,d,x){const T=norm(text),flat=T.replace(/\s/g,''),dates=[];
+ for(const m of T.matchAll(/(\d{2})[\/.\- ](\d{2})[\/.\- ](\d{4})/g))dates.push(`${m[3]}-${m[2]}-${m[1]}`);
+ const det={prenom:T.includes(norm(d.profiles?.first_name)),nom:T.includes(norm(d.profiles?.last_name)),expiration:dates.includes(x.expires_at),numero:!!x.doc_number&&flat.includes(norm(x.doc_number).replace(/\s/g,'')),dates_lues:dates.slice(0,6)};
+ det.verdict=T.replace(/\s/g,'').length<25?'illisible':(det.prenom&&det.nom&&det.expiration?'coherent':'incoherent');return det}
+async function detail(id){
+ const[{data:d},{data:docs}]=await Promise.all([sb.from('drivers').select('*,profiles(first_name,last_name,phone)').eq('id',id).single(),sb.from('driver_documents').select('*').eq('driver_id',id).order('created_at',{ascending:false})]);
+ const paths=[...(d.photo_path?[d.photo_path]:[]),...(docs||[]).map(x=>x.file_path)];
+ const urls={};if(paths.length){const{data:s}=await sb.storage.from('private-docs').createSignedUrls(paths,300);(s||[]).forEach(x=>urls[x.path]=x.signedUrl)}
+ const el=$('#d');
+ el.innerHTML=`<div class="card"><h3>${nm(d.profiles)} <span class="badge">${DS[d.status]}</span></h3><p>Téléphone : ${esc(d.profiles?.phone)}<br>Naissance : ${esc(d.birth_date)} - Adresse : ${esc(d.address)}, ${esc(d.city)}<br>Véhicule : ${esc(d.vehicle_type)} - Note : ${d.rating_count?d.rating_avg:'aucune'}</p>
+ <p>Photo : ${d.photo_path&&urls[d.photo_path]?`<a href="${urls[d.photo_path]}" target="_blank" rel="noopener">Ouvrir la photo</a>`:'<span class="badge bad">Manquante</span>'}</p>
+ <p class="mut">Les noms et dates sont à comparer manuellement avec les documents. Aucune lecture automatique (OCR) n'est branchée : seule l'expiration est contrôlée automatiquement.</p>
+ <div class="scroll"><table class="tbl"><tr><th>Document</th><th>Numéro</th><th>Titulaire / compagnie</th><th>Validité</th><th>Statut</th><th></th></tr>${(docs||[]).map(x=>`<tr><td>${DT[x.doc_type]}<br>${urls[x.file_path]?`<a href="${urls[x.file_path]}" target="_blank" rel="noopener">Ouvrir</a>`:''}${/\.pdf$/i.test(x.file_path)||!urls[x.file_path]?'':` <button class="b g" data-ocr="${x.id}" data-u="${urls[x.file_path]}">Analyser (OCR)</button>`}${x.detected?`<br><span class="badge ${x.detected.verdict==='coherent'?'ok':'w'}" title="${esc(JSON.stringify(x.detected))}">OCR : ${esc(x.detected.verdict)}</span>`:''}</td><td>${esc(x.doc_number)}</td><td>${esc(x.holder_name||x.provider)}</td><td>${esc(x.starts_at||'')} au ${esc(x.expires_at)}</td><td><span class="badge ${x.check_status==='valid'?'ok':x.check_status==='pending'||x.check_status==='needs_review'?'w':'bad'}">${CS[x.check_status]}</span></td><td>${can('verify_drivers')?`<button class="b k" data-ds="valid" data-x="${x.id}">Valide</button> <button class="b g" data-ds="needs_review" data-x="${x.id}">À revoir</button> <button class="b r" data-ds="rejected" data-x="${x.id}">Refuser</button>`:''}</td></tr>`).join('')||`<tr><td colspan="6">${none}</td></tr>`}</table></div></div>
+ ${can('verify_drivers')?`<div class="card row"><button class="b k" data-s="approved">Approuver</button><button class="b g" data-s="correction_required">Demander une correction</button><button class="b r" data-s="rejected">Refuser</button><button class="b r" data-s="suspended">Suspendre</button></div>`:''}`;
+ el.scrollIntoView({behavior:'smooth'});
+ el.onclick=async e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.ocr){const x=docs.find(z=>z.id===b.dataset.ocr);b.disabled=true;b.textContent='Analyse en cours...';
+   try{const r=analyse(await ocr(b.dataset.u),d,x);r.analyse_le=new Date().toISOString();
+    const{error}=await sb.from('driver_documents').update({detected:r,check_status:r.verdict==='coherent'?x.check_status:'needs_review'}).eq('id',x.id);if(error)throw 0;
+    await log('document_ocr','document',x.id,{verdict:r.verdict});toast('Analyse : '+r.verdict);return detail(id)}
+   catch{b.disabled=false;b.textContent='Analyser (OCR)';toast('Analyse impossible. Ouvrez le document et vérifiez-le à la main.')}return}
+  if(b.dataset.ds){const{error}=await sb.from('driver_documents').update({check_status:b.dataset.ds}).eq('id',b.dataset.x);if(error)return toast('Action impossible.');await log('document_'+b.dataset.ds,'document',b.dataset.x);return detail(id)}
+  if(b.dataset.s){let note=null;if(b.dataset.s!=='approved'){note=prompt('Message pour le livreur (obligatoire) :');if(!note)return}
+   const{error}=await sb.rpc('admin_review_driver',{p_driver:id,p_status:b.dataset.s,p_note:note});if(error)return toast(error.message);toast('Décision enregistrée');detail(id)}}}
+
+/* ---------- Utilisateurs ---------- */
+async function ban(id){
+ const k=prompt('Type de bannissement : écrivez "temporaire" ou "permanent"');if(!k)return;
+ const kind=k.toLowerCase().startsWith('t')?'temporary':'permanent';let days=null;
+ if(kind==='temporary'){days=parseInt(prompt('Durée en jours :','7'),10);if(!days)return}
+ const reason=prompt('Raison (obligatoire) :');if(!reason)return;
+ const{error}=await sb.rpc('admin_ban_user',{p_user:id,p_kind:kind,p_reason:reason,p_days:days});toast(error?error.message:'Compte restreint');return !error}
+async function vUsr(){
+ main.innerHTML=`<h2>Utilisateurs</h2><div class="row card"><input id="q" placeholder="Nom, prénom ou téléphone"><select id="r"><option value="">Tous</option><option value="client">Clients</option><option value="driver">Livreurs</option></select><button class="b" id="s">Rechercher</button></div><div id="l"></div>`;
+ const load=async()=>{let q=sb.from('profiles').select('*').order('created_at',{ascending:false}).limit(30);
+  const t=$('#q').value.trim().replace(/[,()]/g,' ');if(t)q=q.or(`first_name.ilike.%${t}%,last_name.ilike.%${t}%,phone.ilike.%${t}%`);if($('#r').value)q=q.eq('role',$('#r').value);
+  const{data}=await q;$('#l').innerHTML=(data||[]).length?`<div class="card scroll"><table class="tbl"><tr><th>Nom</th><th>Téléphone</th><th>Rôle</th><th>Statut</th><th>Inscrit</th><th></th></tr>${data.map(u=>`<tr><td>${nm(u)}</td><td>${esc(u.phone)}</td><td>${u.role==='driver'?'Livreur':'Client'}</td><td><span class="badge ${u.status==='active'?'ok':'bad'}">${u.status==='active'?'Actif':u.status==='banned'?'Banni':'Suspendu'}</span></td><td>${fmt(u.created_at)}</td><td>${can('manage_users')?(u.status==='active'?`<button class="b r" data-b="${u.id}">Bannir</button>`:`<button class="b g" data-u="${u.id}">Réactiver</button>`):''}</td></tr>`).join('')}</table></div>`:empty('Aucun utilisateur trouvé.')};
+ $('#s').onclick=load;$('#l').onclick=async e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.b){if(await ban(b.dataset.b))load()}if(b.dataset.u){const{error}=await sb.rpc('admin_unban_user',{p_user:b.dataset.u});toast(error?error.message:'Compte réactivé');load()}};load()}
+
+/* ---------- Signalements et urgences ---------- */
+async function vRep(){
+ main.innerHTML=`<h2>Signalements</h2><div class="row card"><select id="fs"><option value="">Tous</option>${Object.entries(RS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div><div id="l"></div><h2>Urgences</h2><div id="u"></div>`;
+ const load=async()=>{
+  let q=sb.from('reports').select('*,author:profiles!author_id(first_name,last_name,phone)').order('created_at',{ascending:false}).limit(30);if($('#fs').value)q=q.eq('status',$('#fs').value);
+  const[{data:r},{data:u}]=await Promise.all([q,sb.from('emergency_requests').select('*,usr:profiles!user_id(first_name,last_name,phone)').order('created_at',{ascending:false}).limit(20)]);
+  $('#l').innerHTML=(r||[]).length?r.map(x=>`<div class="card"><b>${RC[x.category]}</b> <span class="badge ${x.status==='open'?'w':x.status==='resolved'||x.status==='closed'?'ok':''}">${RS[x.status]}</span><br>${nm(x.author)} - ${esc(x.author?.phone)} - ${fmt(x.created_at)}<p>${esc(x.description)}</p>${x.admin_reply?`<p class="mut">Réponse : ${esc(x.admin_reply)}</p>`:''}
+   ${can('manage_reports')?`<div class="row"><select data-st="${x.id}">${Object.entries(RS).map(([k,v])=>`<option value="${k}" ${k===x.status?'selected':''}>${v}</option>`).join('')}</select><input data-rp="${x.id}" placeholder="Réponse" value="${esc(x.admin_reply||'')}" style="min-width:240px"><button class="b" data-sv="${x.id}">Enregistrer</button>${can('manage_users')?`<button class="b r" data-bn="${x.author_id}">Suspendre le compte</button>`:''}</div>`:''}</div>`).join(''):empty('Aucun signalement.');
+  $('#u').innerHTML=(u||[]).length?u.map(x=>`<div class="card"><b>${nm(x.usr)}</b> - ${esc(x.usr?.phone)} <span class="badge ${x.status==='open'?'bad':x.status==='resolved'?'ok':'w'}">${RS[x.status]||x.status}</span><br>${fmt(x.created_at)}${x.order_id?` - Commande ${x.order_id.slice(0,8)}`:''}<p>${esc(x.description||'Aucune description')}</p>
+   ${x.lat!=null?`<a href="https://www.google.com/maps?q=${x.lat},${x.lng}" target="_blank" rel="noopener">Voir la position transmise</a>`:'<span class="mut">Position non transmise</span>'}
+   ${can('manage_reports')&&x.status!=='resolved'?`<div class="row"><button class="b g" data-es="in_progress" data-e="${x.id}">Prendre en charge</button><button class="b k" data-es="resolved" data-e="${x.id}">Marquer résolue</button></div>`:''}</div>`).join(''):empty('Aucune urgence.')};
+ main.onclick=async e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.sv){const id=b.dataset.sv,s=$(`[data-st="${id}"]`).value,t=$(`[data-rp="${id}"]`).value.trim()||null;
+   const{error}=await sb.from('reports').update({status:s,admin_reply:t,assigned_to:adm.id}).eq('id',id);if(error)return toast('Action impossible.');await log('report_update','report',id,{status:s});toast('Enregistré');load()}
+  if(b.dataset.bn){if(await ban(b.dataset.bn))load()}
+  if(b.dataset.es){const{error}=await sb.from('emergency_requests').update({status:b.dataset.es}).eq('id',b.dataset.e);if(error)return toast('Action impossible.');await log('emergency_'+b.dataset.es,'emergency',b.dataset.e);load()}};
+ $('#fs').onchange=load;load()}
+
+/* ---------- Abonnements ---------- */
+const normPhone=v=>{let p=v.replace(/[\s.\-()]/g,'');if(/^7\d{8}$/.test(p))p='+221'+p;if(/^221\d{9}$/.test(p))p='+'+p;return/^\+2217\d{8}$/.test(p)?p:null};
+const PSt={pending:['En attente','w'],confirmed:['Confirmé','ok'],cancelled:['Annulé','bad']};
+async function vSub(){
+ const[{data:cfg},{data:sec},{data:pays},{data:subs},{data:plan}]=await Promise.all([sb.rpc('get_subscription_settings'),sb.rpc('get_webhook_secret'),
+  sb.from('payments').select('*,drivers(profiles(first_name,last_name,phone))').order('created_at',{ascending:false}).limit(40),
+  sb.from('subscriptions').select('id,status,expires_at,payment_ref,drivers(profiles(first_name,last_name,phone))').order('created_at',{ascending:false}).limit(40),
+  sb.from('subscription_plans').select('id').eq('code','monthly').maybeSingle()]);
+ const c=cfg||{},hook=sec?`${SBU}/functions/v1/payment-webhook?secret=${sec}`:'';
+ main.innerHTML=`<h2>Abonnement mensuel des livreurs</h2>
+ <form id="f" class="card"><label style="font-weight:400"><input type="checkbox" id="rq" style="width:auto;margin-right:8px" ${c.required?'checked':''}>Abonnement obligatoire pour tous les livreurs</label>
+ <p class="mut">Quand cette option est active, un livreur sans abonnement actif ne peut plus accepter de livraison. Son accès revient automatiquement dès que son paiement est confirmé. Tous les livreurs paient le même abonnement, sans avantage particulier.</p>
+ <label>Prix mensuel (FCFA)<input id="pr" type="number" min="0" required value="${c.price_xof??''}"></label>
+ <label>Lien de paiement<input id="ul" type="url" placeholder="https://..." value="${esc(c.payment_url||'')}"></label>
+ <p class="mut">Le livreur est redirigé vers ce lien quand il clique sur Payer. Vous pouvez insérer {reference}, {amount} et {phone} dans le lien : ils sont remplacés automatiquement.</p><button class="b">Enregistrer</button></form>
+ <div class="card"><b>Confirmation automatique des paiements</b>
+ <p class="mut">Pour que l'accès s'active tout seul, votre fournisseur de paiement doit appeler l'adresse ci-dessous (méthode POST, format JSON) à chaque paiement réussi. Champs reconnus : reference ou client_reference, transaction_id, amount, phone ou mobile, status. Sans reference, le livreur est identifié par son numéro de téléphone. Tant que rien n'est branché, confirmez les paiements à la main ci-dessous.</p>
+ ${hook?`<label>Adresse à donner au fournisseur (confidentielle)<input readonly id="hk" value="${esc(hook)}"></label>`:'<p><span class="badge w">Aucun secret généré</span></p>'}
+ <div class="row">${hook?'<button class="b g" id="cp" type="button">Copier</button>':''}<button class="b g" id="rt" type="button">${hook?'Renouveler le secret':'Générer le secret'}</button></div></div>
+ <div class="card"><b>Paiements</b>${(pays||[]).length?`<div class="scroll"><table class="tbl"><tr><th>Date</th><th>Livreur</th><th>Référence</th><th>Montant</th><th>Statut</th><th>Transaction</th><th></th></tr>${pays.map(x=>`<tr><td>${fmt(x.created_at)}</td><td>${nm(x.drivers?.profiles)}<br><span class="mut">${esc(x.drivers?.profiles?.phone)}</span></td><td>${esc(x.reference)}</td><td>${x.amount_xof.toLocaleString('fr-FR')} FCFA</td><td><span class="badge ${PSt[x.status][1]}">${PSt[x.status][0]}</span>${x.source?`<br><span class="mut">${x.source==='webhook'?'Automatique':'Manuel'}</span>`:''}</td><td>${esc(x.provider_tx||x.declared_tx||'')}${x.declared_tx&&!x.provider_tx?'<br><span class="mut">déclarée par le livreur</span>':''}</td><td>${x.status==='pending'?`<button class="b k" data-cf="${x.id}">Confirmer le paiement</button>`:''}</td></tr>`).join('')}</table></div>`:none}</div>
+ <div class="card"><b>Activer un abonnement à la main</b><p class="mut">Pour un paiement reçu hors du lien (espèces, virement). La référence est obligatoire et enregistrée dans le journal.</p>
+ <div class="row"><input id="ap" placeholder="Téléphone du livreur"><select id="am"><option value="1">1 mois</option><option value="3">3 mois</option><option value="6">6 mois</option><option value="12">12 mois</option></select><input id="ar" placeholder="Référence du paiement"><button class="b k" id="aa">Activer</button></div></div>
+ <div class="card"><b>Abonnés</b>${(subs||[]).length?`<div class="scroll"><table class="tbl"><tr><th>Livreur</th><th>Statut</th><th>Expiration</th><th>Paiement</th><th></th></tr>${subs.map(x=>{const live=x.status==='active'&&(!x.expires_at||new Date(x.expires_at)>new Date());return `<tr><td>${nm(x.drivers?.profiles)}<br><span class="mut">${esc(x.drivers?.profiles?.phone)}</span></td><td><span class="badge ${live?'ok':'bad'}">${live?'Actif':x.status==='suspended'?'Suspendu':'Expiré'}</span></td><td>${fmt(x.expires_at)}</td><td>${esc(x.payment_ref||'')}</td><td>${x.status==='active'?`<button class="b r" data-ss="suspended" data-s="${x.id}">Suspendre</button>`:x.status==='suspended'?`<button class="b g" data-ss="active" data-s="${x.id}">Réactiver</button>`:''}</td></tr>`}).join('')}</table></div>`:none}</div>`;
+ $('#f').onsubmit=async ev=>{ev.preventDefault();const rq=$('#rq').checked;
+  if(rq&&!confirm("Rendre l'abonnement obligatoire ? Tous les livreurs sans abonnement actif ne pourront plus accepter de livraison."))return;
+  const{error}=await sb.rpc('admin_set_subscription_settings',{p_required:rq,p_price:+$('#pr').value,p_url:$('#ul').value.trim()});toast(error?error.message:'Réglages enregistrés');if(!error)vSub()};
+ main.onclick=async e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.id==='cp'){await navigator.clipboard.writeText($('#hk').value);return toast('Adresse copiée')}
+  if(b.id==='rt'){if(sec&&!confirm('Renouveler le secret ? Vous devrez mettre à jour l\'adresse chez votre fournisseur.'))return;const{error}=await sb.rpc('admin_rotate_webhook_secret');toast(error?error.message:'Secret généré');return vSub()}
+  if(b.dataset.cf){if(!confirm('Confirmer ce paiement et activer l\'abonnement du livreur ?'))return;const{error}=await sb.rpc('admin_confirm_payment',{p_payment:b.dataset.cf});toast(error?error.message:'Paiement confirmé, accès activé');return vSub()}
+  if(b.dataset.ss){const{error}=await sb.rpc('admin_set_subscription_status',{p_sub:b.dataset.s,p_status:b.dataset.ss});toast(error?error.message:'Statut modifié');return vSub()}
+  if(b.id==='aa'){const ph=normPhone($('#ap').value);if(!ph)return toast('Numéro invalide.');if(!plan)return toast('Enregistrez d\'abord les réglages ci-dessus.');
+   const{data:u}=await sb.from('profiles').select('id').eq('phone',ph).eq('role','driver').maybeSingle();if(!u)return toast('Aucun livreur avec ce numéro.');
+   const{error}=await sb.rpc('admin_activate_subscription',{p_driver:u.id,p_plan:plan.id,p_months:+$('#am').value,p_ref:$('#ar').value});toast(error?error.message:'Abonnement activé');if(!error)vSub()}}}
+
+/* ---------- Alertes de fraude ---------- */
+const FK={impossible_move:'Déplacement impossible',proof_far_from_location:'Photo de preuve loin du lieu',proof_without_gps:'Preuve sans position GPS',delivery_too_fast:'Livraison trop rapide',many_cancellations:'Annulations multiples'};
+async function vFr(){
+ main.innerHTML=`<h2>Alertes de fraude</h2><p class="mut">Détection automatique : déplacement à plus de 160 km/h, photo de preuve à plus d'1 km du lieu, livraison à plus de 100 km/h de moyenne, preuve sans GPS, 3 annulations ou plus en 7 jours. Une alerte n'est pas une preuve : vérifiez avant de sanctionner.</p>
+ <div class="row card"><select id="fs"><option value="open">À traiter</option><option value="reviewed">Vérifiées</option><option value="dismissed">Écartées</option></select></div><div id="l"></div>`;
+ const load=async()=>{const{data}=await sb.from('fraud_alerts').select('*,drivers(profiles(first_name,last_name,phone))').eq('status',$('#fs').value).order('created_at',{ascending:false}).limit(50);
+  $('#l').innerHTML=(data||[]).length?data.map(x=>`<div class="card"><b>${FK[x.kind]||esc(x.kind)}</b> <span class="badge ${x.severity==='high'?'bad':x.severity==='medium'?'w':''}">${x.severity==='high'?'Élevée':x.severity==='medium'?'Moyenne':'Faible'}</span><br>${nm(x.drivers?.profiles)} - ${esc(x.drivers?.profiles?.phone)} - ${fmt(x.created_at)}${x.order_id?` - Commande ${x.order_id.slice(0,8)}`:''}<p class="mut">${esc(JSON.stringify(x.detail||{}))}</p>
+   ${can('manage_reports')&&x.status==='open'?`<div class="row"><button class="b k" data-fs="reviewed" data-f="${x.id}">Marquer vérifiée</button><button class="b g" data-fs="dismissed" data-f="${x.id}">Écarter</button>${can('manage_users')&&x.driver_id?`<button class="b r" data-bn="${x.driver_id}">Suspendre le livreur</button>`:''}</div>`:''}</div>`).join(''):empty('Aucune alerte.')};
+ $('#fs').onchange=load;
+ main.onclick=async e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.fs){const{error}=await sb.from('fraud_alerts').update({status:b.dataset.fs}).eq('id',b.dataset.f);if(error)return toast('Action impossible.');await log('fraud_'+b.dataset.fs,'fraud_alert',b.dataset.f);load()}
+  if(b.dataset.bn){if(await ban(b.dataset.bn))load()}};load()}
+
+/* ---------- Connexions ---------- */
+async function vConn(){
+ const{data:s,error}=await sb.rpc('get_twilio_status');
+ if(error||!s){main.innerHTML='<h2>Connexions</h2>'+empty('Réservé au Super Admin.');return}
+ main.innerHTML=`<h2>Connexions</h2><form id="f" class="card"><b>WhatsApp et SMS de secours (Twilio)</b>
+ <p class="mut">Les codes de vérification des numéros partent par WhatsApp. Saisissez vos identifiants ici : ils sont enregistrés côté serveur et ne sont plus jamais réaffichés. Pour tester, utilisez le Sandbox WhatsApp de Twilio (chaque testeur doit d'abord lui envoyer son code de rattachement). Pour de vrais utilisateurs, il faut un expéditeur WhatsApp approuvé par Meta et un modèle de message d'authentification (Content SID).</p>
+ <p>État : <span class="badge ${s.configured&&s.enabled?'ok':'w'}">${s.configured?(s.enabled?'Activé':'Configuré, désactivé'):'Non configuré'}</span> ${s.configured?`(Account SID ${esc(s.sid_hint)})`:''}</p>
+ <label>Account SID<input id="sid" required placeholder="AC..." autocomplete="off"></label>
+ <label>Auth Token<input id="tok" type="password" autocomplete="off" placeholder="${s.configured?'Laisser vide pour conserver le jeton actuel':''}" ${s.configured?'':'required'}></label>
+ <label>Numéro WhatsApp expéditeur<input id="fm" required placeholder="+14155238886" value="${esc(s.whatsapp_from||'')}"></label>
+ <label>Numéro SMS de secours (facultatif)<input id="sm" placeholder="+1..." value="${esc(s.sms_from||'')}"></label>
+ <label>Content SID du modèle (facultatif)<input id="cs" placeholder="HX..." value="${esc(s.content_sid||'')}"></label>
+ <label style="font-weight:400"><input type="checkbox" id="en" style="width:auto;margin-right:8px" ${s.enabled?'checked':''}>Exiger la vérification du numéro par code à l'inscription</label>
+ <button class="b">Enregistrer</button></form>`;
+ $('#f').onsubmit=async ev=>{ev.preventDefault();
+  const{error}=await sb.rpc('admin_set_twilio',{p_sid:$('#sid').value.trim(),p_token:$('#tok').value,p_from:$('#fm').value.trim(),p_sms_from:$('#sm').value.trim(),p_content_sid:$('#cs').value.trim(),p_enabled:$('#en').checked});
+  toast(error?error.message:'Connexion enregistrée');if(!error)vConn()}}
+
+/* ---------- Tarifs ---------- */
+async function vSet(){
+ const{data}=await sb.from('app_settings').select('value,updated_at').eq('key','tariff').maybeSingle();const t=data?.value||{};
+ main.innerHTML=`<h2>Tarifs de livraison</h2><form id="f" class="card"><p class="mut">Le prix de chaque nouvelle commande est calculé automatiquement par la base : prix de base + prix par kilomètre, avec un minimum, arrondi aux 25 FCFA supérieurs. La distance ne peut pas être inférieure à la distance à vol d'oiseau. Les commandes déjà créées ne changent pas.</p>
+ <p>${data?`Tarif actuel enregistré le ${fmt(data.updated_at)}.`:'<span class="badge w">Aucun tarif défini</span> Les commandes n\'ont pas de prix tant que vous n\'en définissez pas un.'}</p>
+ <label>Prix de base (FCFA)<input id="tb" type="number" min="0" required value="${t.base_xof??''}"></label><label>Prix par kilomètre (FCFA)<input id="tk" type="number" min="0" required value="${t.per_km_xof??''}"></label>
+ <label>Prix minimum d'une course (FCFA)<input id="tm" type="number" min="0" required value="${t.min_xof??''}"></label><button class="b">Enregistrer le tarif</button></form>
+ <div class="card"><b>Simulateur</b><div class="row"><input id="sk" type="number" min="0" step="0.1" placeholder="Distance en km"><span id="sr" class="mut">Saisissez une distance.</span></div></div>`;
+ $('#sk').oninput=()=>{const k=parseFloat($('#sk').value);if(isNaN(k))return;const v=Math.max(+$('#tm').value||0,(+$('#tb').value||0)+(+$('#tk').value||0)*k);$('#sr').textContent=Math.ceil(v/25)*25+' FCFA'};
+ $('#f').onsubmit=async ev=>{ev.preventDefault();if(!confirm('Appliquer ce tarif à toutes les nouvelles commandes ?'))return;
+  const{error}=await sb.rpc('admin_set_tariff',{p_base:+$('#tb').value,p_per_km:+$('#tk').value,p_min:+$('#tm').value});toast(error?error.message:'Tarif enregistré');if(!error)vSet()}}
+
+/* ---------- Collaborateurs ---------- */
+const PERMS={view_users:'Voir les utilisateurs',manage_users:'Bannir et réactiver les utilisateurs',view_drivers:'Voir les livreurs',verify_drivers:'Vérifier et approuver les livreurs',manage_drivers:'Gérer les livreurs',view_orders:'Voir les commandes',manage_orders:'Gérer les commandes',view_reports:'Voir les signalements',manage_reports:'Traiter les signalements et urgences',send_notifications:'Envoyer des notifications',manage_subscriptions:'Gérer les abonnements',manage_settings:'Modifier les tarifs',view_activity_logs:'Voir le journal d\'activité'};
+const PRE={'Assistant support':['view_users','view_reports','manage_reports'],'Assistant livreurs':['view_drivers','verify_drivers'],'Assistant statistiques':[],'Personnalisé':[]};
+const boxes=(sel,id)=>Object.entries(PERMS).map(([k,v])=>`<label style="font-weight:400"><input type="checkbox" style="width:auto;margin-right:8px" data-${id}="${k}" ${sel.includes(k)?'checked':''}>${v}</label>`).join('');
+const picked=id=>[...document.querySelectorAll(`[data-${id}]:checked`)].map(x=>x.dataset[id]);
+async function vCol(){
+ const{data}=await sb.from('admin_users').select('*').order('created_at');
+ main.innerHTML=`<h2>Collaborateurs et assistants</h2>
+ <form id="f" class="card"><b>Ajouter un collaborateur</b><p class="mut">Un collaborateur n'est jamais Super Admin. Il reçoit un mot de passe provisoire à lui transmettre, qu'il doit changer à sa première connexion.</p>
+ <div class="row"><input id="cn" placeholder="Nom complet" required><input id="ce" type="email" placeholder="Email" required><input id="cp" placeholder="Téléphone"><select id="cr">${Object.keys(PRE).map(r=>`<option>${r}</option>`).join('')}</select></div><p></p>
+ <div id="cb">${boxes([],'c')}</div><p></p><button class="b">Ajouter le collaborateur</button></form><div id="res"></div>
+ <div class="card"><b>Équipe</b><div class="scroll"><table class="tbl"><tr><th>Nom</th><th>Rôle</th><th>Email</th><th>Permissions</th><th>Statut</th><th></th></tr>${(data||[]).map(a=>`<tr><td>${esc(a.full_name)}</td><td>${a.is_super?'Super Admin':esc(a.role_name||'-')}</td><td>${esc(a.email)}</td><td>${a.is_super?'Toutes':a.permissions.length}</td><td><span class="badge ${a.active?'ok':'bad'}">${a.active?'Actif':'Désactivé'}</span></td><td>${a.is_super?'':`<button class="b g" data-ed="${a.id}">Modifier</button>`}</td></tr>`).join('')}</table></div></div><div id="ed"></div>`;
+ $('#cr').onchange=()=>{const p=PRE[$('#cr').value];$('#cb').innerHTML=boxes(p,'c')};$('#cr').onchange();
+ $('#f').onsubmit=async ev=>{ev.preventDefault();const{data:{session}}=await sb.auth.getSession();
+  const r=await fetch(SBU+'/functions/v1/create-collaborator',{method:'POST',headers:{'Content-Type':'application/json',apikey:KEY,Authorization:'Bearer '+session.access_token},body:JSON.stringify({full_name:$('#cn').value,email:$('#ce').value,phone:$('#cp').value,role_name:$('#cr').value,permissions:picked('c')})});
+  const j=await r.json().catch(()=>({}));if(!r.ok)return toast(j.error||'Création impossible.');
+  $('#res').innerHTML=`<div class="card"><b>Compte créé</b><p>Email : ${esc($('#ce').value)}<br>Mot de passe provisoire : <b>${esc(j.temp_password)}</b></p><p class="mut">Transmettez-le de façon privée. Il ne sera plus affiché. Le collaborateur devra le changer à sa première connexion.</p></div>`;
+  toast('Collaborateur ajouté');$('#f').reset();$('#cr').onchange()};
+ $('#ed').onclick=null;
+ main.onclick=async e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.ed){const a=data.find(x=>x.id===b.dataset.ed);
+   $('#ed').innerHTML=`<div class="card"><b>Modifier ${esc(a.full_name)}</b><p></p><label>Rôle<input id="er" value="${esc(a.role_name||'')}"></label>${boxes(a.permissions,'e')}<label style="font-weight:400"><input type="checkbox" id="ea" style="width:auto;margin-right:8px" ${a.active?'checked':''}>Compte actif</label><button class="b" id="es" data-id="${a.id}">Enregistrer</button></div>`;$('#ed').scrollIntoView({behavior:'smooth'})}
+  if(b.id==='es'){const{error}=await sb.rpc('admin_update_collaborator',{p_id:b.dataset.id,p_perms:picked('e'),p_active:$('#ea').checked,p_role:$('#er').value.trim()||null});toast(error?error.message:'Modifications enregistrées');if(!error)vCol()}}}
+
+/* ---------- Notifications ---------- */
+function vNtf(){
+ main.innerHTML=`<h2>Campagne de notification</h2><form id="f" class="card"><label>Audience<select id="a"><option value="all_clients">Tous les clients</option><option value="all_drivers">Tous les livreurs</option><option value="premium_drivers">Livreurs abonnés</option><option value="free_drivers">Livreurs non abonnés</option></select></label>
+ <label>Titre<input id="t" required maxlength="100"></label><label>Message<textarea id="m" rows="4" required></textarea></label><label>Expiration (facultatif)<input id="x" type="datetime-local"></label>
+ <p class="mut">L'envoi est immédiat. Seuls les comptes actifs reçoivent la notification.</p><button class="b">Envoyer</button></form>`;
+ $('#f').onsubmit=async ev=>{ev.preventDefault();if(!confirm('Envoyer cette notification maintenant ?'))return;
+  const{data,error}=await sb.rpc('admin_send_campaign',{p_title:$('#t').value,p_body:$('#m').value,p_audience:$('#a').value,p_expires:$('#x').value?new Date($('#x').value).toISOString():null});
+  if(error)return toast(error.message);toast(`Envoyée à ${data} destinataire(s)`);$('#f').reset()}}
+
+/* ---------- Journal ---------- */
+async function vLog(){
+ const{data:ad}=await sb.from('admin_users').select('id,full_name,email');const who=Object.fromEntries((ad||[]).map(a=>[a.id,a.full_name||a.email]));
+ let page=0;main.innerHTML=`<h2>Journal d'activité</h2><div class="row card"><input id="fa" placeholder="Filtrer par action (ex : ban)"><button class="b" id="fb">Filtrer</button></div><div class="card scroll"><table class="tbl" id="t"><tr><th>Date</th><th>Administrateur</th><th>Action</th><th>Cible</th><th>Détails</th></tr></table></div><button class="b g" id="mo" hidden>Voir plus</button>`;
+ const load=async reset=>{if(reset){page=0;$('#t').innerHTML=$('#t').rows[0].outerHTML}
+  let q=sb.from('admin_activity_logs').select('*').order('created_at',{ascending:false}).range(page*30,page*30+29);const f=$('#fa').value.trim();if(f)q=q.ilike('action',`%${f}%`);
+  const{data}=await q;$('#t').insertAdjacentHTML('beforeend',(data||[]).map(l=>`<tr><td>${fmt(l.created_at)}</td><td>${esc(who[l.admin_id]||l.admin_id||'-')}</td><td>${esc(l.action)}</td><td>${esc(l.target_type||'')} ${esc((l.target_id||'').slice(0,8))}</td><td>${esc(l.metadata?JSON.stringify(l.metadata):'')}</td></tr>`).join(''));
+  if(page===0&&!(data||[]).length)$('#t').insertAdjacentHTML('beforeend','<tr><td colspan="5" class="mut">Aucune donnée disponible.</td></tr>');
+  $('#mo').hidden=(data||[]).length<30;page++};
+ $('#fb').onclick=()=>load(true);$('#mo').onclick=()=>load(false);load(false)}
+start();
+</script></body></html>
